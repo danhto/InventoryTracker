@@ -1,0 +1,24 @@
+{% if inventory_list %}
+<table>
+    <tr>
+        <th>Product Name</th>
+        <th>Lot Number</th>
+        <th>Quantity</th>
+        <th>Pieces</th>
+        <th>Location</th>
+        <th>Notes</th>
+    </th>
+    {% for inventory in inventory_list %}
+    <tr>
+        <td><a href="{% url 'tracker:product_inventory' inventory.product.product_name.lower %}">{{ inventory.product.product_name }}</a></td>
+        <td>{{ inventory.lot_number }}</td>
+        <td>{{ inventory.quantity }}</td>
+        <td>{{ inventory.pieces }}</td>
+        <td>{{ inventory.location }}</td>
+        <td>{{ inventory.notes }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>No inventory in system.</p>
+{% endif %}

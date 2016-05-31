@@ -17,5 +17,5 @@ class Inventory(models.Model):
     pieces = models.IntegerField(default = 0)
     notes = models.CharField(max_length=200)
     def __str__(self):
-        return self.product.product_name + " - " + self.lot_number + " -quantity: " + self.quantity + " -location: " + self.location
+        return self.product.product_name + " - " + str(self.lot_number) + " -quantity: " + str(self.quantity) + " -location: " + self.location
 

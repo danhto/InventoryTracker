@@ -1,0 +1,21 @@
+<h1>All inventory for {{ product_name }}</h1>
+<table>
+    <tr>
+        <th>Product Name</th>
+        <th>Lot Number</th>
+        <th>Quantity</th>
+        <th>Pieces</th>
+        <th>Location</th>
+        <th>Notes</th>
+    </th>
+    {% for inventory in inventory_list %}
+    <tr>
+        <td>{{ inventory.product.product_name }}</td>
+        <td>{{ inventory.lot_number }}</td>
+        <td>{{ inventory.quantity }}</td>
+        <td>{{ inventory.pieces }}</td>
+        <td>{{ inventory.location }}</td>
+        <td>{{ inventory.notes }}</td>
+    </tr>
+    {% endfor %}
+</table>
