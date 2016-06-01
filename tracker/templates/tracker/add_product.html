@@ -1,0 +1,22 @@
+{% if product %}<h1>New Product Added {{ product.product_name }}</h1>{% endif %}
+<h1>New Product</h1>
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<form action="{% url 'tracker:new_product' %}" method="post">
+    {% csrf_token %}
+    <input type="text" name="product_name" id="product_name" />
+    <label for="product_name">Product name</label><br />
+    <input type="text" name="sm_lot_number" id="sm_lot_number" />
+    <label for="sm_lot_number">SM Lot Number</label><br />
+    <input type="submit" value="Add Product" />
+</form>
+
+<h1>Existing Products</h1>
+{% for product in product_list %}
+<form action="{% url 'tracker:delete_product' %}" method="POST">
+    <input type="text" name="product_name" id="product_name" value="{{ product }}" readonly>
+    <li>{{ product.sm_lot_number }}</li>
+    <input id="submit" type="button" value="Remove Product" />
+</form>
+{% endfor %}
