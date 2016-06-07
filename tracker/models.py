@@ -29,8 +29,8 @@ class Inventory(models.Model):
     quantity = models.IntegerField(default=0)
     location = models.CharField(max_length=100)
     label = models.CharField(max_length=1,choices=LABEL_INFO, default=NO_LABEL)
-    standard = models.BooleanField(default='true')
-    dessicate = models.BooleanField(default='false')
+    standard = models.CharField(max_length=3)
+    dessicate = models.CharField(max_length=3)
     notes = models.CharField(max_length=200)
     def __str__(self):
         return self.product.product_name + " - " + str(self.lot_number) + " -quantity: " + str(self.quantity) + " -location: " + self.location

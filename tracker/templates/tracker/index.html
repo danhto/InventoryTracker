@@ -1,20 +1,42 @@
+<table class="menu">
+    <tr>
+        <td>
+            <form action="{% url 'tracker:add_inventory' %}">
+                <input type="submit" value="Add New Inventory">
+            </form>
+        </td>
+        <td>
+            <form action="{% url 'tracker:add_product' %}">
+                <input type="submit" value="Add New Product">
+            </form>
+        </td>
+    </tr>
+</table>
+            
+
+<h1>Current Inventory</h1>
+
 {% if inventory_list %}
 <table>
     <tr>
-        <th>Product Name</th>
+        <th>Product</th>
         <th>Lot Number</th>
         <th>Quantity</th>
-        <th>Pieces</th>
         <th>Location</th>
+        <th>Label</th>
+        <th>Standard</th>
+        <th>Dessicate</th>
         <th>Notes</th>
     </th>
     {% for inventory in inventory_list %}
     <tr>
-        <td><a href="{% url 'tracker:product_inventory' inventory.product.product_name.lower %}">{{ inventory.product.product_name }}</a></td>
+        <td><a href="{% url 'tracker:product_inventory' inventory.product.product_name.lower %}">{{ inventory.product }}</a></td>
         <td>{{ inventory.lot_number }}</td>
         <td>{{ inventory.quantity }}</td>
-        <td>{{ inventory.pieces }}</td>
         <td>{{ inventory.location }}</td>
+        <td>{{ inventory.label }}</td>
+        <td>{{ inventory.standard }}</td>
+        <td>{{ inventory.dessicate }}</td>
         <td>{{ inventory.notes }}</td>
     </tr>
     {% endfor %}

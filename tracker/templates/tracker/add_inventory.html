@@ -1,0 +1,63 @@
+<table class="menu">
+    <tr>
+        <td>
+            <form action="{% url 'tracker:index' %}">
+                <input type="submit" value="Inventory List">
+            </form>
+        </td>
+        <td>
+            <form action="{% url 'tracker:add_product' %}">
+                <input type="submit" value="Add New Product">
+            </form>
+        </td>
+    </tr>
+</table>
+
+{% if added %}<p><strong>Inventory successfully added</strong></p>{% endif %}
+
+<h1>New Inventory</h1>
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+<form action="{% url 'tracker:new_inventory' %}" method="post">
+    {% csrf_token %}
+    <label for="sm_lot_number">Product:</label>
+    <select name="sm_lot_number" id="sm_lot_number">
+        {% for product in product_list %}
+            <option value="{{ product.sm_lot_number }}">{{ product }}</option>
+        {% endfor %}
+    </select><br />
+    
+    <label for="lot_number">Lot Number:</label>
+    <input type="text" name="lot_number" id="lot_number" /><br />
+    
+    <label for="quantity">Quantity:</label>
+    <input type="text" name="quantity" id="quantity" /><br />
+    
+    <label for="location">Location:</label>
+    <input type="text" name="location" id="location" /><br />
+    
+    <label for="label">Label:</label>
+    <select name="label" id="label">
+        <option value="0">No Label</option>
+        <option value="1">Labels</option>
+        <option value="2">Partially Labelled</option>
+    </select><br /><br />
+    
+    <label for="standard">Standard:</label>
+    <select name="standard" id="standard">
+        <option value="No">No</option>
+        <option value="Yes" selected="selected">Yes</option>
+    </select><br /><br />
+    
+    <label for="dessicate">Dessicate:</label>
+    <select name="dessicate" id="dessicate">
+        <option value="No" selected="selected">No</option>
+        <option value="Yes">Yes</option>
+    </select><br /><br />
+    
+    <label for="notes">Notes:</label>
+    <textarea name="notes" id="notes"></textarea><br /><br />
+    
+    <input type="submit" value="Add Inventory" />
+</form>
