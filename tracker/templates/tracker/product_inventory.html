@@ -1,20 +1,52 @@
+<table class="menu">
+    <tr>
+        <td>
+            <form action="{% url 'tracker:index' %}">
+                <input type="submit" value="Inventory List">
+                    </form>
+        </td>
+        <td>
+            <form action="{% url 'tracker:add_product' %}">
+                <input type="submit" value="Add New Product">
+                    </form>
+        </td>
+        <td>
+            <form action="{% url 'tracker:add_inventory' %}">
+                <input type="submit" value="Add New Inventory">
+                    </form>
+        </td>
+    </tr>
+</table>
+
 <h1>All inventory for {{ product_name }}</h1>
 <table>
     <tr>
-        <th>Product Name</th>
+        <th>Product</th>
         <th>Lot Number</th>
         <th>Quantity</th>
-        <th>Pieces</th>
         <th>Location</th>
+        <th>Label</th>
+        <th>Standard</th>
+        <th>Dessicate</th>
         <th>Notes</th>
     </th>
     {% for inventory in inventory_list %}
     <tr>
         <td>{{ inventory.product.product_name }}</td>
         <td>{{ inventory.lot_number }}</td>
-        <td>{{ inventory.quantity }}</td>
-        <td>{{ inventory.pieces }}</td>
+        <td>
+            <form action="{% url 'tracker:update_inventory' forloop.counter %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="lot_number{{ forloop.counter }}" id="lot_number{{ forloop.counter }}" value="{{ inventory.lot_number }}" />
+                <input type="hidden" name="sm_lot_number{{ forloop.counter }}" id="sm_lot_number{{ forloop.counter }}" value="{{ inventory.product.sm_lot_number }}" />
+                <input type="text" name="quantity{{ forloop.counter }}" id="quantity{{ forloop.counter }}" value="{{ inventory.quantity }}" />
+                <input type="submit" value="Update" />
+            </form>
+        </td>
         <td>{{ inventory.location }}</td>
+        <td>{{ inventory.label }}</td>
+        <td>{{ inventory.standard }}</td>
+        <td>{{ inventory.dessicate }}</td>
         <td>{{ inventory.notes }}</td>
     </tr>
     {% endfor %}

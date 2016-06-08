@@ -17,4 +17,6 @@ urlpatterns = [
                url(r'^add_inventory/$', views.add_inventory, name='add_inventory'),
                # ex: /tracker/new_inventory accessible only through form submission from add_inventory.html
                url(r'^new_inventory/$', views.new_inventory, name='new_inventory'),
+               # ex: /tracker/update_inventory accessible only through form submission from product_inventory.html
+               url(r'^update_inventory/(?P<counter>\d+)$', views.update_inventory, name='update_inventory'),
                ]

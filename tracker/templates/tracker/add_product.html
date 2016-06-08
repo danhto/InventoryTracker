@@ -1,14 +1,14 @@
 <table class="menu">
     <tr>
         <td>
-            <form action="{% url 'tracker:add_inventory' %}">
-                <input type="submit" value="Add New Inventory">
-                    </form>
+            <form action="{% url 'tracker:index' %}">
+                <input type="submit" value="Inventory List">
+            </form>
         </td>
         <td>
-            <form action="{% url 'tracker:add_product' %}">
-                <input type="submit" value="Add New Product">
-                    </form>
+            <form action="{% url 'tracker:add_inventory' %}">
+                <input type="submit" value="Add New Inventory">
+            </form>
         </td>
     </tr>
 </table>

@@ -22,20 +22,20 @@
 <form action="{% url 'tracker:new_inventory' %}" method="post">
     {% csrf_token %}
     <label for="sm_lot_number">Product:</label>
-    <select name="sm_lot_number" id="sm_lot_number">
+    <select name="sm_lot_number" id="sm_lot_number" required>
         {% for product in product_list %}
             <option value="{{ product.sm_lot_number }}">{{ product }}</option>
         {% endfor %}
     </select><br />
     
     <label for="lot_number">Lot Number:</label>
-    <input type="text" name="lot_number" id="lot_number" /><br />
+    <input type="text" name="lot_number" id="lot_number" required/><br />
     
     <label for="quantity">Quantity:</label>
-    <input type="text" name="quantity" id="quantity" /><br />
+    <input type="text" name="quantity" id="quantity" required/><br />
     
     <label for="location">Location:</label>
-    <input type="text" name="location" id="location" /><br />
+    <input type="text" name="location" id="location" /required><br />
     
     <label for="label">Label:</label>
     <select name="label" id="label">

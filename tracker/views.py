@@ -2,11 +2,12 @@ from django.shortcuts import render
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from tracker.models import Product, Inventory
 from django.core.urlresolvers import reverse
-import datetime
+from django.utils import timezone
+from django.contrib import messages
 
 # List all inventory entries in system
 def index(request):
-    inventory_list = Inventory.objects.order_by('add_date')[:10]
+    inventory_list = Inventory.objects.order_by('add_date')[:]
     context = {'inventory_list': inventory_list}
     return render(request, 'tracker/index.html', context)
 
@@ -50,6 +51,9 @@ def delete_product(request):
     product_name = request.POST['product_name']
     for product in Product.objects.all():
         if str(product.product_name) == product_name:
+            inventory_list = Inventory.objects.filter(product=product)
+            if (len(inventory_list) > 0):
+                inventory_list.delete()
             product.delete()
     return HttpResponseRedirect(reverse('tracker:add_product', args=()))
 
@@ -59,17 +63,18 @@ def add_inventory(request):
 
 # Creates and stores inventory based on values entered into the new_inventory form
 def new_inventory(request):
-    sm_lot_number = request.POST['sm_lot_number']
-    lot_number = request.POST['lot_number']
-    quantity = request.POST['quantity']
-    location = request.POST['location']
-    label = request.POST['label']
-    standard = request.POST['standard']
-    dessicate = request.POST['dessicate']
-    notes = request.POST['notes']
+    sm_lot_number = str(request.POST['sm_lot_number'])
+    lot_number = str(request.POST['lot_number'])
+    quantity = str(request.POST['quantity'])
+    location = str(request.POST['location'])
+    label = str(request.POST['label'])
+    standard = str(request.POST['standard'])
+    dessicate = str(request.POST['dessicate'])
+    notes = str(request.POST['notes'])
     product = ''
+    print (location == '')
     # Guards against blank fields
-    if sm_lot_number == '' and lot_number == '' and quantity == '' and location == '':
+    if sm_lot_number == '' or lot_number == '' or quantity == '' or location == '':
         return render(request, 'tracker/add_inventory.html', {'product_list': Product.objects.all(), 'error_message': "Missing information, only notes can be empty.",})
     # Searches for product in database and creates inventory with indicated values if found
     for prod in Product.objects.all():
@@ -83,7 +88,7 @@ def new_inventory(request):
         return render(request, 'tracker/add_inventory.html', {'product_list': Product.objects.all(), 'error_message': "Product error: Product cannot be found.",})
     else:
         inventory = Inventory(product=product,
-                              add_date=datetime.datetime.now(),
+                              add_date=timezone.now(),
                               lot_number=lot_number,
                               quantity=quantity,
                               location=location,
@@ -94,3 +99,18 @@ def new_inventory(request):
         inventory.save()
         return render(request, 'tracker/add_inventory.html', {'product_list': Product.objects.all(), 'added': "1",})
         #return HttpResponseRedirect(reverse('tracker:add_inventory', {'added': "true"}, args=()))
+
+# Updates the quantity of an existing inventory
+def update_inventory(request, counter):
+    lot_number = str(request.POST['lot_number'+counter])
+    quantity = str(request.POST['quantity'+counter])
+    sm_lot_number = str(request.POST['sm_lot_number'+counter])
+    product = Product.objects.get(sm_lot_number=sm_lot_number)
+    inv = ''
+    inventory_list = Inventory.objects.filter(product=product)
+    for inventory in Inventory.objects.all():
+        if inventory.lot_number == lot_number:
+            inv = inventory
+    inv.quantity = quantity
+    inv.save()
+    return render(request, 'tracker/product_inventory.html', {'inventory_list': inventory_list, 'product_name': product.product_name,})
