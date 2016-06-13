@@ -13,6 +13,7 @@ class Product(models.Model):
     weight = models.DecimalField(max_digits=6, decimal_places=2)
     pieces = models.IntegerField()
     category = models.CharField(max_length=3,choices=CATEGORIES,default=DEXTROSE)
+    popular = models.CharField(max_length=3,default='No')
     def __str__(self):
         return self.product_name + " - " + self.sm_lot_number
 
@@ -29,8 +30,8 @@ class Inventory(models.Model):
     quantity = models.IntegerField(default=0)
     location = models.CharField(max_length=100)
     label = models.CharField(max_length=1,choices=LABEL_INFO, default=NO_LABEL)
-    standard = models.CharField(max_length=3)
-    dessicate = models.CharField(max_length=3)
+    standard = models.CharField(max_length=3, default='Yes')
+    dessicate = models.CharField(max_length=3, default='No')
     notes = models.CharField(max_length=200)
     def __str__(self):
         return self.product.product_name + " - " + str(self.lot_number) + " -quantity: " + str(self.quantity) + " -location: " + self.location

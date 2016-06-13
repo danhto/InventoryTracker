@@ -3,9 +3,11 @@ from django.http import HttpResponse, Http404, HttpResponseRedirect
 from tracker.models import Product, Inventory
 from django.core.urlresolvers import reverse
 from django.utils import timezone
-from django.contrib import messages
+from django.contrib import messages, auth
+from django.contrib.auth.decorators import login_required
 
 # List all inventory entries in system
+@login_required(login_url='/tracker/login/',redirect_field_name='/tracker/index')
 def index(request):
     inventory_list = Inventory.objects.order_by('add_date')[:]
     context = {'inventory_list': inventory_list}
@@ -27,9 +29,23 @@ def product_inventory(request, product_name):
         raise Http404("No inventory in system")
     return render(request, 'tracker/product_inventory.html', {'inventory_list': inventory_list, 'product_name': p_name})
 
+# Get an array of all existing categories
+def getCategories():
+    categories = []
+    for product in Product.objects.all():
+        if product.category not in categories:
+            categories.append(product.category)
+    return categories
+
 # Add product calls the add_product.html view
 def add_product(request):
-    return render(request, 'tracker/add_product.html', {'product_list': Product.objects.all()})
+    categories = getCategories()
+    products = Product.objects.all()
+    # Filters list of products if a filter is found
+    if request.method == 'POST':
+        filter = str(request.POST.get('filtcategory', 'Gum'))
+        products = products.filter(category=filter)
+    return render(request, 'tracker/add_product.html', {'product_list': products, 'categories': categories,})
 
 # Creates and store product based on values entered into the new_product form
 def new_product(request):
@@ -38,12 +54,14 @@ def new_product(request):
     weight = request.POST['weight']
     pieces = request.POST['pieces']
     category = request.POST['category']
+    popular = str(request.POST['popular'])
+    categories = getCategories();
     # Proceed with product creation only if both fields are not empty
     if product_name.strip() != '' and sm_lot_number.strip() != '' and weight.strip() != '' and pieces.strip() != '':
-        product = Product(product_name=product_name, sm_lot_number=sm_lot_number, weight=weight, pieces=pieces, category=category)
+        product = Product(product_name=product_name, sm_lot_number=sm_lot_number, weight=weight, pieces=pieces, category=category, popular=popular)
         product.save()
     else:
-        return render(request, 'tracker/add_product.html', {'product_list': Product.objects.all(), 'error_message': "Product name and lot number cannot be empty.",})
+        return render(request, 'tracker/add_product.html', {'product_list': Product.objects.all(), 'categories': categories, 'error_message': "Product name and lot number cannot be empty.",})
     return HttpResponseRedirect(reverse('tracker:add_product', args=()))
 
 # Removes product from database
@@ -72,7 +90,7 @@ def new_inventory(request):
     dessicate = str(request.POST['dessicate'])
     notes = str(request.POST['notes'])
     product = ''
-    print (location == '')
+    print ("Dessicate = "+dessicate)
     # Guards against blank fields
     if sm_lot_number == '' or lot_number == '' or quantity == '' or location == '':
         return render(request, 'tracker/add_inventory.html', {'product_list': Product.objects.all(), 'error_message': "Missing information, only notes can be empty.",})

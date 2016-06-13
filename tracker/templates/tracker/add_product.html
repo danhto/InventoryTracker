@@ -33,14 +33,29 @@
     
     <label for="category">Category:</label>
     <select name="category" id="category">
-        <option value="Gum">Gum</option>
-        <option value="Dextrose">Dextrose</option>
+    {% for type in categories %}
+        <option value="{{ type }}">{{ type }}</option>
+    {% endfor %}
     </select><br /><br />
+    
+    <label for="popular">Popular Product:</label>
+    <input type="checkbox" name="popular" id="popular" value="Yes"><br />
 
     <input type="submit" value="Add Product" />
 </form>
 
 <h1>Existing Products</h1>
+
+<form action="{% url 'tracker:add_product' %}" method="POST">
+    {% csrf_token %}
+    <select name="filtcategory" id="filtcategory">
+    {% for type in categories %}
+        <option value="{{ type }}">{{ type }}</option>
+    {% endfor %}
+    </select>
+    <input type="submit" value="Filter" />
+</form>
+
 {% for product in product_list %}
     <form action="{% url 'tracker:delete_product' %}" method="POST">
     {% csrf_token %}

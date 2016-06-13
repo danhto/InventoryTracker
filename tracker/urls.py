@@ -1,5 +1,6 @@
 from django.conf.urls import include, url
 from . import views
+from django.contrib.auth import views as auth_views
 
 app_name = 'tracker'
 urlpatterns = [
@@ -19,4 +20,6 @@ urlpatterns = [
                url(r'^new_inventory/$', views.new_inventory, name='new_inventory'),
                # ex: /tracker/update_inventory accessible only through form submission from product_inventory.html
                url(r'^update_inventory/(?P<counter>\d+)$', views.update_inventory, name='update_inventory'),
+               # ex: /login login form for tracker application
+               url(r'^login/$', auth_views.login, {'template_name': 'tracker/login.html'}),
                ]
