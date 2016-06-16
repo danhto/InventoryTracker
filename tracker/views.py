@@ -5,9 +5,13 @@ from django.core.urlresolvers import reverse
 from django.utils import timezone
 from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout, login, authenticate
+
+def log_out(request):
+    logout_then_login(request)
 
 # List all inventory entries in system
-@login_required(login_url='/tracker/login/',redirect_field_name='/tracker/index')
+@login_required
 def index(request):
     inventory_list = Inventory.objects.order_by('add_date')[:]
     context = {'inventory_list': inventory_list}

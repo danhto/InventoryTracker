@@ -10,6 +10,11 @@
                 <input type="submit" value="Add New Inventory">
             </form>
         </td>
+        <td>
+            <form action="{% url 'tracker:log_out' %}">
+                <input type="submit" value="Logout">
+             </form>
+        </td>
     </tr>
 </table>
 
