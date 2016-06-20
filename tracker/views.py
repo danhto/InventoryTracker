@@ -6,18 +6,21 @@ from django.utils import timezone
 from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout, login, authenticate
+from django.contrib.auth.views import logout_then_login
 
 def log_out(request):
-    logout_then_login(request)
+    return logout_then_login(request,login_url='/tracker/login')
 
 # List all inventory entries in system
 @login_required
 def index(request):
-    inventory_list = Inventory.objects.order_by('add_date')[:]
+    order_by = request.GET.get('order_by', 'add_date')
+    inventory_list = Inventory.objects.all().order_by(order_by)
     context = {'inventory_list': inventory_list}
     return render(request, 'tracker/index.html', context)
 
 # Iterate through all inventory objects and display only listings that match chosen product_name
+@login_required
 def product_inventory(request, product_name):
     try:
         inventory_all = Inventory.objects.all()
@@ -42,6 +45,7 @@ def getCategories():
     return categories
 
 # Add product calls the add_product.html view
+@login_required
 def add_product(request):
     categories = getCategories()
     products = Product.objects.all()
@@ -52,6 +56,7 @@ def add_product(request):
     return render(request, 'tracker/add_product.html', {'product_list': products, 'categories': categories,})
 
 # Creates and store product based on values entered into the new_product form
+@login_required
 def new_product(request):
     product_name = request.POST['product_name']
     sm_lot_number = request.POST['sm_lot_number']
@@ -69,6 +74,7 @@ def new_product(request):
     return HttpResponseRedirect(reverse('tracker:add_product', args=()))
 
 # Removes product from database
+@login_required
 def delete_product(request):
     product_name = request.POST['product_name']
     for product in Product.objects.all():
@@ -80,10 +86,12 @@ def delete_product(request):
     return HttpResponseRedirect(reverse('tracker:add_product', args=()))
 
 # Add new inventory for an existing product
+@login_required
 def add_inventory(request):
     return render(request, 'tracker/add_inventory.html', {'product_list': Product.objects.all()})
 
 # Creates and stores inventory based on values entered into the new_inventory form
+@login_required
 def new_inventory(request):
     sm_lot_number = str(request.POST['sm_lot_number'])
     lot_number = str(request.POST['lot_number'])
@@ -94,7 +102,6 @@ def new_inventory(request):
     dessicate = str(request.POST['dessicate'])
     notes = str(request.POST['notes'])
     product = ''
-    print ("Dessicate = "+dessicate)
     # Guards against blank fields
     if sm_lot_number == '' or lot_number == '' or quantity == '' or location == '':
         return render(request, 'tracker/add_inventory.html', {'product_list': Product.objects.all(), 'error_message': "Missing information, only notes can be empty.",})
@@ -123,6 +130,7 @@ def new_inventory(request):
         #return HttpResponseRedirect(reverse('tracker:add_inventory', {'added': "true"}, args=()))
 
 # Updates the quantity of an existing inventory
+@login_required
 def update_inventory(request, counter):
     lot_number = str(request.POST['lot_number'+counter])
     quantity = str(request.POST['quantity'+counter])

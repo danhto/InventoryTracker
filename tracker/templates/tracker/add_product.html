@@ -1,16 +1,16 @@
 <table class="menu">
     <tr>
-        <td>
+        <td class="menu">
             <form action="{% url 'tracker:index' %}">
                 <input type="submit" value="Inventory List">
             </form>
         </td>
-        <td>
+        <td class="menu">
             <form action="{% url 'tracker:add_inventory' %}">
                 <input type="submit" value="Add New Inventory">
             </form>
         </td>
-        <td>
+        <td class="menu">
             <form action="{% url 'tracker:log_out' %}">
                 <input type="submit" value="Logout">
              </form>

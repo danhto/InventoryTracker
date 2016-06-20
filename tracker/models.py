@@ -18,6 +18,7 @@ class Product(models.Model):
         return self.product_name + " - " + self.sm_lot_number
 
 class Inventory(models.Model):
+    INVENTORY_THRESHOLD = 50
     NO_LABEL = 0
     HAS_LABEL = 1
     SOME_LABELS = 2
@@ -35,4 +36,10 @@ class Inventory(models.Model):
     notes = models.CharField(max_length=200)
     def __str__(self):
         return self.product.product_name + " - " + str(self.lot_number) + " -quantity: " + str(self.quantity) + " -location: " + self.location
-
+    def critical_stock(self):
+        if (self.product.popular == 'Yes'):
+            self.INVENTORY_THRESHOLD = 100
+        if (self.quantity < self.INVENTORY_THRESHOLD):
+            return True
+        else:
+            return False

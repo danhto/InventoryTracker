@@ -1,0 +1,13 @@
+td {
+    backgroundColor: red;
+}
+
+th {
+    backgroundColor: blue;
+}
+
+th, td {
+    border: 1px solid #999;
+    padding: 0.5rem;
+    text-align: left;
+}

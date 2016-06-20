@@ -1,16 +1,20 @@
+<meta http-equiv="refresh" content="30" />
+{% load staticfiles %}
+<link rel="stylesheet" href="{% static 'tracker/css/style.css' %}">
+    
 <table class="menu">
     <tr>
-        <td>
+        <td class="menu">
             <form action="{% url 'tracker:add_inventory' %}">
                 <input type="submit" value="Add New Inventory">
             </form>
         </td>
-        <td>
+        <td class="menu">
             <form action="{% url 'tracker:add_product' %}">
                 <input type="submit" value="Add New Product">
             </form>
         </td>
-        <td>
+        <td class="menu">
             <form action="{% url 'tracker:log_out' %}">
                 <input type="submit" value="Logout">
             </form>
@@ -24,25 +28,35 @@
 {% if inventory_list %}
 <table>
     <tr>
-        <th>Product</th>
-        <th>Lot Number</th>
-        <th>Quantity</th>
-        <th>Location</th>
-        <th>Label</th>
-        <th>Standard</th>
-        <th>Dessicate</th>
+        <th><a href="?order_by=product">Product Name</a></th>
+        <th>Product Number</th>
+        <th><a href="?order_by=lot_number">Lot Number</a></th>
+        <th><a href="?order_by=quantity">Quantity</a></th>
+        <th><a href="?order_by=location">Location</a></th>
+        <th><a href="?order_by=label">Label</a></th>
+        <th><a href="?order_by=standard">Standard</a></th>
+        <th><a href="?order_by=dessicate">Dessicate</a></th>
         <th>Notes</th>
     </th>
     {% for inventory in inventory_list %}
+    {% if inventory.critical_stock %}
+    <tr class="red">
+    {% else %}
     <tr>
-        <td><a href="{% url 'tracker:product_inventory' inventory.product.product_name.lower %}">{{ inventory.product }}</a></td>
-        <td>{{ inventory.lot_number }}</td>
-        <td>{{ inventory.quantity }}</td>
-        <td>{{ inventory.location }}</td>
-        <td>{{ inventory.label }}</td>
-        <td>{{ inventory.standard }}</td>
-        <td>{{ inventory.dessicate }}</td>
-        <td>{{ inventory.notes }}</td>
+    {% endif %}
+        <td class="data">
+            <a href="{% url 'tracker:product_inventory' inventory.product.product_name.lower %}">
+                {{ inventory.product.product_name }}
+            </a>
+        </td>
+        <td class="data">{{ inventory.product.sm_lot_number }}</td>
+        <td class="data">{{ inventory.lot_number }}</td>
+        <td class="data">{{ inventory.quantity }}</td>
+        <td class="data">{{ inventory.location }}</td>
+        <td class="data">{{ inventory.label }}</td>
+        <td class="data">{{ inventory.standard }}</td>
+        <td class="data">{{ inventory.dessicate }}</td>
+        <td class="data">{{ inventory.notes }}</td>
     </tr>
     {% endfor %}
 </table>
