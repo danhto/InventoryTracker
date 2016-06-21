@@ -5,9 +5,13 @@ from django.db import models
 class Product(models.Model):
     DEXTROSE = 'DEX'
     GUM = 'GUM'
+    PANNED_SUGAR = 'PSG'
+    JAWBREAKER = 'JAW'
     CATEGORIES = (
-                  (DEXTROSE, 'Dextrose'),
-                  (GUM, 'Gum'),)
+                  (DEXTROSE, 'Pressed Dextrose'),
+                  (GUM, 'Bubble Gum'),
+                  (PANNED_SUGAR, 'Panned Sugar'),
+                  (JAWBREAKER, 'Jawbreaker'),)
     product_name = models.CharField(max_length=200)
     sm_lot_number = models.CharField(max_length=200)
     weight = models.DecimalField(max_digits=6, decimal_places=2)
@@ -43,3 +47,17 @@ class Inventory(models.Model):
             return True
         else:
             return False
+
+class Order(models.Model):
+    PENDING = '0'
+    APPROVED = '1'
+    STATUS = ((PENDING, 'Pending'),
+                  (APPROVED, 'Approved'),)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    date = models.DateTimeField('date')
+    quantity = models.IntegerField(default=0)
+    client = models.CharField(max_length=100)
+    notes = models.CharField(max_length=200)
+    status = models.CharField(max_length=1, choices=STATUS, default=PENDING)
+    def __str__(self):
+        return quantity + " of " + self.product + " ordered by " + self.client + " on " + date + ". Additional Notes: " + notes

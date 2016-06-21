@@ -15,6 +15,11 @@
             </form>
         </td>
         <td class="menu">
+            <form action="{% url 'tracker:place_order' %}">
+                <input type="submit" value="Place Order">
+            </form>
+        </td>
+        <td class="menu">
             <form action="{% url 'tracker:log_out' %}">
                 <input type="submit" value="Logout">
             </form>
@@ -35,7 +40,7 @@
         <th><a href="?order_by=location">Location</a></th>
         <th><a href="?order_by=label">Label</a></th>
         <th><a href="?order_by=standard">Standard</a></th>
-        <th><a href="?order_by=dessicate">Dessicate</a></th>
+        <th><a href="?order_by=dessicate">Dessicant</a></th>
         <th>Notes</th>
     </th>
     {% for inventory in inventory_list %}
@@ -53,7 +58,7 @@
         <td class="data">{{ inventory.lot_number }}</td>
         <td class="data">{{ inventory.quantity }}</td>
         <td class="data">{{ inventory.location }}</td>
-        <td class="data">{{ inventory.label }}</td>
+        <td class="data">{{ inventory.get_label_display }}</td>
         <td class="data">{{ inventory.standard }}</td>
         <td class="data">{{ inventory.dessicate }}</td>
         <td class="data">{{ inventory.notes }}</td>

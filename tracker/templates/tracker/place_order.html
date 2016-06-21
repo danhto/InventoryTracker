@@ -1,0 +1,47 @@
+{% load staticfiles %}
+<link rel="stylesheet" href="{% static 'tracker/css/style.css' %}">
+
+<table class="menu">
+    <tr>
+        <td class="menu">
+            <form action="{% url 'tracker:index' %}">
+                <input type="submit" value="Inventory List">
+                    </form>
+        </td>
+        <td class="menu">
+            <form action="{% url 'tracker:log_out' %}">
+                <input type="submit" value="Logout">
+                    </form>
+        </td>
+    </tr>
+</table>
+
+{% if error %}
+<h1 class="error">
+    {{ error_message }}
+</h1>
+{% endif %}
+
+<form action="{url 'tracker:new_order' %}" method="post">
+    {% csrf_token %}
+    <label for="sm_lot_number">Product:</label>
+    <select name="sm_lot_number" id="sm_lot_number" required>
+        {% for product in product_list %}
+        <option value="{{ product.sm_lot_number }}">{{ product }}</option>
+        {% endfor %}
+    </select><br />
+    
+    <label for="quantity">Quantity:</label>
+    <input type="text" name="quantity" id="quantity" required/><br />
+    
+    <label for="date">Order Date:</label>
+    <input type="date" name="date" id="date" required/><br />
+    
+    <label for="client">Client:</label>
+    <input type="text" name="client" id="client" required/><br />
+    
+    <label for="notes">Notes:</label>
+    <input type="text" name="notes" id="notes" /><br /><br />
+    
+    <input type="submit" value="Place Order" />
+</form>

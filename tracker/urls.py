@@ -21,9 +21,11 @@ urlpatterns = [
                # ex: /tracker/update_inventory accessible only through form submission from product_inventory.html
                url(r'^update_inventory/(?P<counter>\d+)$', views.update_inventory, name='update_inventory'),
                # ex: /login login form for tracker application
-               #url(r'^login/$', auth_views.login, {'template_name': 'tracker/login.html'}),
-               # ex: /login login form for tracker application
                url(r'^login/$', auth_views.login, {'template_name': 'tracker/login.html'}),
                # ex: /logout clears current user session
                url(r'^log_out/$', views.log_out, name='log_out'),
+               # ex: /place_order webpage for placing new orders
+               url(r'^place_order/$', views.place_order, name='place_order'),
+               # ex: /new_order accessible only from place_order.html creates a new order
+               url(r'^new_order/$', views.new_order, name='new_order'),
                ]

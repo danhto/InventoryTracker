@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse, Http404, HttpResponseRedirect
-from tracker.models import Product, Inventory
+from tracker.models import Product, Inventory, Order
 from django.core.urlresolvers import reverse
 from django.utils import timezone
 from django.contrib import messages, auth
@@ -144,3 +144,20 @@ def update_inventory(request, counter):
     inv.quantity = quantity
     inv.save()
     return render(request, 'tracker/product_inventory.html', {'inventory_list': inventory_list, 'product_name': product.product_name,})
+
+# Opens product ordering webpage
+@login_required
+def place_order(request):
+    product_list = Product.objects.all()
+    return render(request, 'tracker/place_order.html', {'product_list': product_list})
+
+def new_order(request):
+    sm_lot_number = str(request.POST['sm_lot_number'])
+    quantity = str(request.POST['sm_lot_number'])
+    date = str(request.POST['date'])
+    client = str(request.POST['client'])
+    notes = str(request.POST['notes'])
+    product = Product.objects.get(sm_lot_number=sm_lot_number)
+    order = Order(product=product, date=date, quantity=quantity, client=client, notes=notes)
+    order.save()
+    return HttpResponseRedirect(reverse('tracker:place_order', {'product_list': Product.objects.all(), 'error': "Order has been placed"}, args=()))
