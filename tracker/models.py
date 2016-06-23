@@ -1,12 +1,15 @@
 from __future__ import unicode_literals
-
+import os
 from django.db import models
 
+def get_image_path(instance, filename):
+    return os.path.join('photos', str(instance.id), filename)
+
 class Product(models.Model):
-    DEXTROSE = 'DEX'
-    GUM = 'GUM'
-    PANNED_SUGAR = 'PSG'
-    JAWBREAKER = 'JAW'
+    DEXTROSE = 'dex'
+    GUM = 'gum'
+    PANNED_SUGAR = 'psg'
+    JAWBREAKER = 'jaw'
     CATEGORIES = (
                   (DEXTROSE, 'Pressed Dextrose'),
                   (GUM, 'Bubble Gum'),
@@ -18,6 +21,7 @@ class Product(models.Model):
     pieces = models.IntegerField()
     category = models.CharField(max_length=3,choices=CATEGORIES,default=DEXTROSE)
     popular = models.CharField(max_length=3,default='No')
+    photo = models.FileField(upload_to=get_image_path, blank=True, null=True)
     def __str__(self):
         return self.product_name + " - " + self.sm_lot_number
 

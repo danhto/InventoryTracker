@@ -12,10 +12,14 @@ th, td.data {
   text-align: left;
 }
 
-label {
+label.form {
   display: inline-block;
   width: 150px;
   font-weight: bold;
+}
+
+label.lbl_product_details {
+  display: inline-block;
 }
 
 form, input {
@@ -34,6 +38,10 @@ input, select, text {
   box-sizing: border-box;
 }
 
+input[type=file] {
+  width: 300px;
+}
+
 input[type=submit] {
   font-family : inherit;
   font-size   : 100%;
@@ -41,4 +49,21 @@ input[type=submit] {
   height: 50px;
   padding: 12px 15px;
   margin: 12px 5;
+}
+
+#product_info {
+  display: inline-block;
+  float: left;
+}
+
+#product_photo_div {
+  display: inline-block;
+  
+}
+
+#product_photo {
+  display: block;
+  margin: 10% 40%;
+  width: 300px;
+  height: 300px;
 }

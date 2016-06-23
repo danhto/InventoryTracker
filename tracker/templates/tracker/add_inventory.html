@@ -29,42 +29,42 @@
 
 <form action="{% url 'tracker:new_inventory' %}" method="post">
     {% csrf_token %}
-    <label for="sm_lot_number">Product:</label>
+    <label for="sm_lot_number" class="form">Product:</label>
     <select name="sm_lot_number" id="sm_lot_number" required>
         {% for product in product_list %}
             <option value="{{ product.sm_lot_number }}">{{ product }}</option>
         {% endfor %}
     </select><br />
     
-    <label for="lot_number">Lot Number:</label>
+    <label for="lot_number" class="form">Lot Number:</label>
     <input type="text" name="lot_number" id="lot_number" required/><br />
     
-    <label for="quantity">Quantity:</label>
+    <label for="quantity" class="form">Quantity:</label>
     <input type="text" name="quantity" id="quantity" required/><br />
     
-    <label for="location">Location:</label>
+    <label for="location" class="form">Location:</label>
     <input type="text" name="location" id="location" /required><br />
     
-    <label for="label">Label:</label>
+    <label for="label" class="form">Label:</label>
     <select name="label" id="label">
         <option value="0">No Label</option>
         <option value="1">Labels</option>
         <option value="2">Partially Labelled</option>
     </select><br /><br />
     
-    <label for="standard">Standard:</label>
+    <label for="standard" class="form">Standard:</label>
     <select name="standard" id="standard">
         <option value="No">No</option>
         <option value="Yes" selected="selected">Yes</option>
     </select><br /><br />
     
-    <label for="dessicate">Dessicate:</label>
+    <label for="dessicate" class="form">Dessicant:</label>
     <select name="dessicate" id="dessicate">
         <option value="No" selected="selected">No</option>
         <option value="Yes">Yes</option>
     </select><br /><br />
     
-    <label for="notes">Notes:</label>
+    <label for="notes" class="form">Notes:</label>
     <textarea name="notes" id="notes"></textarea><br /><br />
     
     <input type="submit" value="Add Inventory" />

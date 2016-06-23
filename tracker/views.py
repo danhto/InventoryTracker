@@ -38,10 +38,7 @@ def product_inventory(request, product_name):
 
 # Get an array of all existing categories
 def getCategories():
-    categories = []
-    for product in Product.objects.all():
-        if product.category not in categories:
-            categories.append(product.category)
+    categories = {'dex':'Pressed Dextose', 'gum':'Bubble Gum', 'psg':'Panned Sugar', 'jaw':'Jawbreaker'}
     return categories
 
 # Add product calls the add_product.html view
@@ -49,11 +46,13 @@ def getCategories():
 def add_product(request):
     categories = getCategories()
     products = Product.objects.all()
+    filter = ''
     # Filters list of products if a filter is found
     if request.method == 'POST':
-        filter = str(request.POST.get('filtcategory', 'Gum'))
-        products = products.filter(category=filter)
-    return render(request, 'tracker/add_product.html', {'product_list': products, 'categories': categories,})
+        filter = str(request.POST['filtcategory'])
+        if filter != '':
+            products = products.filter(category=filter)
+    return render(request, 'tracker/add_product.html', {'product_list': products, 'categories': categories, 'filter': filter,})
 
 # Creates and store product based on values entered into the new_product form
 @login_required
@@ -63,26 +62,32 @@ def new_product(request):
     weight = request.POST['weight']
     pieces = request.POST['pieces']
     category = request.POST['category']
-    popular = str(request.POST['popular'])
+    popular = request.POST.get('popular', 'No')
+    img = request.FILES.get('photo', '')
     categories = getCategories();
     # Proceed with product creation only if both fields are not empty
     if product_name.strip() != '' and sm_lot_number.strip() != '' and weight.strip() != '' and pieces.strip() != '':
         product = Product(product_name=product_name, sm_lot_number=sm_lot_number, weight=weight, pieces=pieces, category=category, popular=popular)
         product.save()
+        product.photo.save(img.name, img)
     else:
         return render(request, 'tracker/add_product.html', {'product_list': Product.objects.all(), 'categories': categories, 'error_message': "Product name and lot number cannot be empty.",})
     return HttpResponseRedirect(reverse('tracker:add_product', args=()))
 
+@login_required
+def product_details(request, sm_lot_number):
+    product = Product.objects.get(sm_lot_number=sm_lot_number)
+    return render(request, 'tracker/product_details.html', {'product': product,})
+
 # Removes product from database
 @login_required
 def delete_product(request):
-    product_name = request.POST['product_name']
-    for product in Product.objects.all():
-        if str(product.product_name) == product_name:
-            inventory_list = Inventory.objects.filter(product=product)
-            if (len(inventory_list) > 0):
-                inventory_list.delete()
-            product.delete()
+    sm_lot_number = request.POST['sm_lot_number']
+    product = Product.objects.get(sm_lot_number=sm_lot_number)
+    inventory_list = Inventory.objects.filter(product=product)
+    if (len(inventory_list) > 0):
+        inventory_list.delete()
+    product.delete()
     return HttpResponseRedirect(reverse('tracker:add_product', args=()))
 
 # Add new inventory for an existing product

@@ -1,0 +1,45 @@
+{% load staticfiles %}
+<link rel="stylesheet" href="{% static 'tracker/css/style.css' %}">
+    
+<table class="menu">
+    <tr>
+        <td class="menu">
+            <form action="{% url 'tracker:index' %}">
+                <input type="submit" value="Inventory List">
+            </form>
+        </td>
+        <td class="menu">
+            <form action="{% url 'tracker:add_inventory' %}">
+                <input type="submit" value="Add New Inventory">
+            </form>
+        </td>
+        <td class="menu">
+            <form action="{% url 'tracker:add_product' %}">
+                <input type="submit" value="Add New Product">
+            </form>
+        </td>
+        <td class="menu">
+            <form action="{% url 'tracker:log_out' %}">
+                <input type="submit" value="Logout">
+            </form>
+        </td>
+    </tr>
+</table>
+
+<h1>{{ product.product_name }}</h1>
+
+<div id="product_info">
+    <p id="sm_lot_number" class="p_product_details">Product Number: {{ product.sm_lot_number }}</p><br /><br />
+
+    <p id="weight" class="p_product_details">Weight: {{ product.weight }}</p><br /><br />
+
+    <p id="pieces" class="p_product_details">Pieces: {{ product.pieces }}</p><br /><br />
+
+    <p id="category" class="p_product_details">Category: {{ product.get_category_display }}</p><br /><br />
+
+    <p id="popular" class="p_product_details">Popular Product: {{ product.popular }}</p>
+</div>
+
+<div id="product_photo_div">
+    <img id="product_photo" src="{{ product.photo.url }}" id="photo"/>
+</div>

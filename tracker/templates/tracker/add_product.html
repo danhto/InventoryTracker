@@ -25,29 +25,32 @@
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
-<form action="{% url 'tracker:new_product' %}" method="post">
+<form action="{% url 'tracker:new_product' %}" enctype="multipart/form-data" method="post">
     {% csrf_token %}
-    <label for="product_name">Product name:</label>
+    <label for="product_name" class="form">Product name:</label>
     <input type="text" name="product_name" id="product_name" /><br />
     
-    <label for="sm_lot_number">SM Lot Number:</label>
+    <label for="sm_lot_number" class="form">SM Lot Number:</label>
     <input type="text" name="sm_lot_number" id="sm_lot_number" /><br />
     
-    <label for="weight">Weight:</label>
+    <label for="weight" class="form">Weight:</label>
     <input type="text" name="weight" id="weight" /><br />
     
-    <label for="pieces">Pieces:</label>
+    <label for="pieces" class="form">Pieces:</label>
     <input type="text" name="pieces" id="pieces" /><br />
     
-    <label for="category">Category:</label>
+    <label for="category" class="form">Category:</label>
     <select name="category" id="category">
-    {% for type in categories %}
-        <option value="{{ type }}">{{ type }}</option>
+    {% for key, value in categories.items %}
+        <option value="{{ key }}">{{ value }}</option>
     {% endfor %}
     </select><br /><br />
     
-    <label for="popular">Popular Product:</label>
-    <input type="checkbox" name="popular" id="popular" value="Yes"><br />
+    <label for="popular" class="form">Popular Product:</label>
+    <input type="checkbox" name="popular" id="popular" value="Yes" /><br />
+
+    <label for="photo" class="form">Product Photo:</label>
+    <input type="file" name="photo" id="photo" accept="image/gif, image/jpeg, image/png" /><br />
 
     <input type="submit" value="Add Product" />
 </form>
@@ -57,9 +60,14 @@
 <form action="{% url 'tracker:add_product' %}" method="POST">
     {% csrf_token %}
     <select name="filtcategory" id="filtcategory">
-    {% for type in categories %}
-        <option value="{{ type }}">{{ type }}</option>
-    {% endfor %}
+        <option value="" >All</option>
+        {% for key, value in categories.items %}
+            {% if filter == key %}
+                <option value="{{ key }}" selected>{{ value }}</option>
+                {% else %}
+                <option value="{{ key }}" >{{ value }}</option>
+            {% endif %}
+        {% endfor %}
     </select>
     <input type="submit" value="Filter" />
 </form>
@@ -67,8 +75,10 @@
 {% for product in product_list %}
     <form action="{% url 'tracker:delete_product' %}" method="POST">
     {% csrf_token %}
-        <input type="text" name="product_name" id="product_name" value="{{ product.product_name }}" readonly>
-        <input type="text" name="product_name" id="product_name" value="{{ product.sm_lot_number }}" readonly>
+        <a href="{% url 'tracker:product_details' product.sm_lot_number %}">
+            <input type="text" name="product_name" id="product_name" value="{{ product.product_name }}" readonly>
+        </a>
+        <input type="text" name="sm_lot_number" id="sm_lot_number" value="{{ product.sm_lot_number }}" readonly>
         <input type="submit" value="Remove Product" />
     </form>
 {% endfor %}
