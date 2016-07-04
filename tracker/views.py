@@ -15,6 +15,9 @@ def log_out(request):
 @login_required
 def index(request):
     order_by = request.GET.get('order_by', 'add_date')
+    for inventory in Inventory.objects.all():
+        if inventory.quantity < 1:
+            inventory.delete()
     inventory_list = Inventory.objects.all().order_by(order_by)
     context = {'inventory_list': inventory_list}
     return render(request, 'tracker/index.html', context)
@@ -100,9 +103,9 @@ def add_inventory(request):
 def new_inventory(request):
     sm_lot_number = str(request.POST['sm_lot_number'])
     lot_number = str(request.POST['lot_number'])
-    quantity = str(request.POST['quantity'])
+    quantity = request.POST['quantity']
     location = str(request.POST['location'])
-    label = str(request.POST['label'])
+    label = request.POST['label']
     standard = str(request.POST['standard'])
     dessicate = str(request.POST['dessicate'])
     notes = str(request.POST['notes'])
