@@ -27,9 +27,9 @@ class Product(models.Model):
 
 class Inventory(models.Model):
     INVENTORY_THRESHOLD = 50
-    NO_LABEL = 0
-    HAS_LABEL = 1
-    SOME_LABELS = 2
+    NO_LABEL = '0'
+    HAS_LABEL = '1'
+    SOME_LABELS = '2'
     LABEL_INFO = ((NO_LABEL, 'No Label'),
                   (HAS_LABEL, 'Has labels'),
                   (SOME_LABELS, 'Partially labelled'),)
@@ -60,8 +60,18 @@ class Order(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     date = models.DateTimeField('date')
     quantity = models.IntegerField(default=0)
+    stock = models.CharField(max_length=100)
     client = models.CharField(max_length=100)
     notes = models.CharField(max_length=200)
     status = models.CharField(max_length=1, choices=STATUS, default=PENDING)
     def __str__(self):
         return quantity + " of " + self.product + " ordered by " + self.client + " on " + date + ". Additional Notes: " + notes
+    def update_status(self):
+        if self.status == PENDING:
+            self.status = APPROVED
+    def order_age(self):
+        date_difference = timezone.now() - self.date
+        if date_difference > 7:
+            return True
+        else:
+            return False

@@ -1,0 +1,110 @@
+<meta http-equiv="refresh" content="30" />
+{% load staticfiles %}
+<link rel="stylesheet" href="{% static 'tracker/css/style.css' %}">
+    
+<table class="menu">
+    <tr>
+        <td class="menu">
+            <form action="{% url 'tracker:add_inventory' %}">
+                <input type="submit" value="Add New Inventory">
+            </form>
+        </td>
+        <td class="menu">
+            <form action="{% url 'tracker:add_product' %}">
+                <input type="submit" value="Add New Product">
+            </form>
+        </td>
+        <td class="menu">
+            <form action="{% url 'tracker:place_order' %}">
+                <input type="submit" value="Place Order">
+            </form>
+        </td>
+        <td class="menu">
+            <form action="{% url 'tracker:log_out' %}">
+                <input type="submit" value="Logout">
+            </form>
+        </td>
+    </tr>
+</table>
+    
+<div id="pending_orders">
+    <h1>Pending Orders</h1>
+    
+    {% if pending_orders %}
+    <table>
+        <tr>
+            <th><a href="?order_by=product">Product Name</a></th>
+            <th>Product Number</th>
+            <th><a href="?order_by=date">Order Date</a></th>
+            <th><a href="?order_by=quantity">Quantity</a></th>
+            <th><a href="?order_by=client">Client</a></th>
+            <th><a href="?order_by=stock">Pending Stock</a></th>
+            <th>Notes</th>
+
+        </tr>
+        {% for order in pending_orders %}
+            {% if order.order_age %}
+                <tr class="red">
+            {% else %}
+                <tr>
+            {% endif %}
+                <td class="data">
+                    <a href="{% url 'tracker:product_inventory' order.product.product_name.lower %}">
+                            {{ order.product.product_name }}
+                    </a>
+                </td>
+                <td class="data">{{ order.product.sm_lot_number }}</td>
+                <td class="data">{{ order.date }}</td>
+                <td class="data">{{ order.quantity }}</td>
+                <td class="data">{{ order.client }}</td>
+                <td class="data">{{ order.stock }}</td>
+                <td class="data">{{ order.notes }}</td>
+
+                </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+        <p>No pending orders in system.</p>
+    {% endif %}
+</div>
+
+<div id="approved_orders">
+    <h1>Approved Orders</h1>
+    
+    {% if approved_orders %}
+    <table>
+        <tr>
+            <th><a href="?order_by=product">Product Name</a></th>
+            <th>Product Number</th>
+            <th><a href="?order_by=date">Order Date</a></th>
+            <th><a href="?order_by=quantity">Quantity</a></th>
+            <th><a href="?order_by=client">Client</a></th>
+            <th><a href="?order_by=stock">Pending Stock</a></th>
+            <th>Notes</th>
+            
+        </tr>
+        {% for order in approved_orders %}
+        {% if order.order_age %}
+        <tr class="red">
+            {% else %}
+            <tr>
+                {% endif %}
+                <td class="data">
+                    <a href="{% url 'tracker:product_inventory' order.product.product_name.lower %}">
+                        {{ order.product.product_name }}
+                    </a>
+                </td>
+                <td class="data">{{ order.product.sm_lot_number }}</td>
+                <td class="data">{{ order.date }}</td>
+                <td class="data">{{ order.quantity }}</td>
+                <td class="data">{{ order.client }}</td>
+                <td class="data">{{ order.stock }}</td>
+                <td class="data">{{ order.notes }}</td>
+                
+            </tr>
+            {% endfor %}
+            </table>
+    {% else %}
+    <p>No pending orders in system.</p>
+    {% endif %}
+</div>
