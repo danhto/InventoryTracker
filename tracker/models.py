@@ -24,6 +24,8 @@ class Product(models.Model):
     photo = models.FileField(upload_to=get_image_path, blank=True, null=True)
     def __str__(self):
         return self.product_name + " - " + self.sm_lot_number
+    def __cmp__(self, other):
+        return self.__dict__ == other.__dict__
 
 class Inventory(models.Model):
     INVENTORY_THRESHOLD = 50
@@ -57,10 +59,11 @@ class Order(models.Model):
     APPROVED = '1'
     STATUS = ((PENDING, 'Pending'),
                   (APPROVED, 'Approved'),)
+    order_number = models.IntegerField(default=1)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     date = models.DateTimeField('date')
     quantity = models.IntegerField(default=0)
-    stock = models.CharField(max_length=100)
+    stock = models.CharField(max_length=100, default='')
     client = models.CharField(max_length=100)
     notes = models.CharField(max_length=200)
     status = models.CharField(max_length=1, choices=STATUS, default=PENDING)
@@ -69,9 +72,22 @@ class Order(models.Model):
     def update_status(self):
         if self.status == PENDING:
             self.status = APPROVED
+    def get_stock(self):
+        stocks = []
+        for stock in self.stock.split(","):
+            if len(stock) > 0:
+                stocks.append(stock)
+        return stocks
     def order_age(self):
         date_difference = timezone.now() - self.date
-        if date_difference > 7:
+        if date_difference > 7 and self.get_status_display() == 'Pending':
             return True
         else:
             return False
+
+class Pending_Stock(models.Model):
+    order_number = models.IntegerField(default=1)
+    inventory = models.ForeignKey(Inventory, on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=0)
+    def __str__(self):
+        return self.quantity + " from " + self.inventory.lot_number

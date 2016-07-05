@@ -1,12 +1,13 @@
 from django.shortcuts import render
 from django.http import HttpResponse, Http404, HttpResponseRedirect
-from tracker.models import Product, Inventory, Order
+from tracker.models import Product, Inventory, Order, Pending_Stock
 from django.core.urlresolvers import reverse
 from django.utils import timezone
 from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout, login, authenticate
 from django.contrib.auth.views import logout_then_login
+from django.core.exceptions import ObjectDoesNotExist
 
 def log_out(request):
     return logout_then_login(request,login_url='/tracker/login')
@@ -157,15 +158,86 @@ def update_inventory(request, counter):
 @login_required
 def place_order(request):
     product_list = Product.objects.all()
-    return render(request, 'tracker/place_order.html', {'product_list': product_list})
+    pending_stock = Pending_Stock.objects.all()
+    return render(request, 'tracker/place_order.html', {'product_list': product_list, 'pending_stock': pending_stock})
 
+@login_required
 def new_order(request):
+    MAX_QUANTITY_ON_SKIT = 64
+    try:
+        index = Order.objects.count() - 1
+        if index >= 0:
+            order_number = Order.objects.all()[index].order_number + 1
+    except ObjectDoesNotExist:
+        order_number = 1
     sm_lot_number = str(request.POST['sm_lot_number'])
-    quantity = str(request.POST['sm_lot_number'])
+    quantity = request.POST['quantity']
     date = str(request.POST['date'])
     client = str(request.POST['client'])
     notes = str(request.POST['notes'])
     product = Product.objects.get(sm_lot_number=sm_lot_number)
-    order = Order(product=product, date=date, quantity=quantity, client=client, notes=notes)
+    stocks = ''
+    # check number of skits filled by order quantity
+    skits_in_order = quantity/MAX_QUANTITY_ON_SKIT
+    leftover_in_order = quantity%MAX_QUANTITY_ON_SKIT
+    inventory_list = []
+    # make a list of all inventory that contain product in order and order by date
+    for inventory in Inventory.objects.all():
+        if inventory.product.__cmp__(product):
+            inventory_list.append(inventory)
+    inventory_list = inventory_list.order_by('add_date')
+    
+    # scan all inventory for stock prioritizing full skits then date
+    for index, inventory in inventory_list:
+        skits_in_inventory = inventory.quantity/MAX_QUANTITY_ON_SKIT
+        leftover_in_inventory = inventory.quantity%MAX_QUANTITY_ON_SKIT
+        # check if inventory has enough stock to fill as many skits as required by order
+        # inventory has enough to fullfill skit requirements of order
+        if skits_in_order <= skits_in_inventory:
+            # inventory has enough to fullfill leftover requirements of order
+            if leftover_in_order <= leftover_in_inventory:
+                quantity_taken = skits_in_order*MAX_QUANTITY_ON_SKIT + leftover_in_order
+                leftover_in_order = 0
+                pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
+                pending_stock.save()
+                stock = stock + pending_stock.id + ", "
+            # inventory does not have enough to fullfill leftover requirements of order
+            else:
+                quantity_taken = skits_in_order*MAX_QUANTITY_ON_SKIT + leftover_in_inventory
+                leftover_in_order = leftover_in_order - leftover_in_inventory
+                pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
+                pending_stock.save()
+                stock = stock + pending_stock.id + ", "
+            skits_in_order = 0
+        # inventory does not have enough to fullfill skit requirements of order
+        else:
+            # checks if skit amount of inventory is 0
+            if skits_in_inventory != 0:
+                skits_taken = skits_in_inventory*MAX_QUANTITY_ON_SKIT
+            else:
+                skits_taken = 0
+            if leftover_in_order <= leftover_in_inventory:
+                quantity_taken = skits_taken + leftover_in_order
+                leftover_in_order = 0
+                pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
+                pending_stock.save()
+                stock = stock + pending_stock.id + ", "
+            else:
+                quantity_taken = skits_taken + leftover_in_inventory
+                leftover_in_order = leftover_in_order - leftover_in_inventory
+                pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
+                pending_stock.save()
+                stock = stock + pending_stock.id + ", "
+        # if order quantity has been satisfied stop scanning inventory for stock
+        if skits_in_order == 0 and leftover_in_inventory == 0:
+            break
+                
+    order = Order(order_number=order_number, product=product, date=date, quantity=quantity, stock=stock, client=client, notes=notes)
     order.save()
     return HttpResponseRedirect(reverse('tracker:place_order', {'product_list': Product.objects.all(), 'error': "Order has been placed"}, args=()))
+
+@login_required
+def view_orders(request):
+    order_by = request.GET.get('order_by', 'date')
+    orders_all = Order.objects.all().order_by(order_by)
+    return render(request, 'tracker/orders_list.html', {'orders': orders_all})

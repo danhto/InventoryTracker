@@ -9,6 +9,11 @@
             </form>
         </td>
         <td class="menu">
+            <form action="{% url 'tracker:view_orders' %}">
+                <input type="submit" value="Orders List">
+            </form>
+        </td>
+        <td class="menu">
             <form action="{% url 'tracker:log_out' %}">
                 <input type="submit" value="Logout">
             </form>
@@ -22,7 +27,7 @@
 </h1>
 {% endif %}
 
-<form action="{url 'tracker:new_order' %}" method="post">
+<form action="{% url 'tracker:new_order' %}" method="post">
     {% csrf_token %}
     <label for="sm_lot_number" class="form">Product:</label>
     <select name="sm_lot_number" id="sm_lot_number" required>

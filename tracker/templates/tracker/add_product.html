@@ -9,6 +9,11 @@
             </form>
         </td>
         <td class="menu">
+            <form action="{% url 'tracker:view_orders' %}">
+                <input type="submit" value="Orders List">
+            </form>
+        </td>
+        <td class="menu">
             <form action="{% url 'tracker:add_inventory' %}">
                 <input type="submit" value="Add New Inventory">
             </form>

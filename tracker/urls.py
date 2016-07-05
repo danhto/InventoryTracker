@@ -29,9 +29,11 @@ urlpatterns = [
                url(r'^login/$', auth_views.login, {'template_name': 'tracker/login.html'}),
                # ex: /logout clears current user session
                url(r'^log_out/$', views.log_out, name='log_out'),
-               # ex: /place_order webpage for placing new orders
                
+               # ex: /place_order webpage for placing new orders
                url(r'^place_order/$', views.place_order, name='place_order'),
                # ex: /new_order accessible only from place_order.html creates a new order
                url(r'^new_order/$', views.new_order, name='new_order'),
+               # ex: /view_orders renders orders_list.html and displays all current orders in system
+               url(r'^view_orders/$', views.view_orders, name='view_orders'),
                ]
