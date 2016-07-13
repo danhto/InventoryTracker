@@ -164,19 +164,25 @@ def place_order(request):
 @login_required
 def new_order(request):
     MAX_QUANTITY_ON_SKIT = 64
+    order_number = None
+    
+    # gets the last used order_number and increment by 1, if no orders exist start at 1
     try:
         index = Order.objects.count() - 1
         if index >= 0:
             order_number = Order.objects.all()[index].order_number + 1
+        else:
+            order_number = 1
     except ObjectDoesNotExist:
         order_number = 1
-    sm_lot_number = str(request.POST['sm_lot_number'])
-    quantity = request.POST['quantity']
-    date = str(request.POST['date'])
-    client = str(request.POST['client'])
-    notes = str(request.POST['notes'])
+
+    sm_lot_number = request.POST['sm_lot_number']
+    quantity = int(request.POST['quantity'])
+    date = request.POST['date']
+    client = request.POST['client']
+    notes = request.POST['notes']
     product = Product.objects.get(sm_lot_number=sm_lot_number)
-    stocks = ''
+    stock = ''
     # check number of skits filled by order quantity
     skits_in_order = quantity/MAX_QUANTITY_ON_SKIT
     leftover_in_order = quantity%MAX_QUANTITY_ON_SKIT
@@ -185,7 +191,8 @@ def new_order(request):
     for inventory in Inventory.objects.all():
         if inventory.product.__cmp__(product):
             inventory_list.append(inventory)
-    inventory_list = inventory_list.order_by('add_date')
+    inventory_list = sorted(inventory_list, key=lambda inventory: inventory.add_date)
+    # inventory_list = inventory_list.order_by('add_date')
     
     # scan all inventory for stock prioritizing full skits then date
     for index, inventory in inventory_list:
@@ -234,7 +241,9 @@ def new_order(request):
                 
     order = Order(order_number=order_number, product=product, date=date, quantity=quantity, stock=stock, client=client, notes=notes)
     order.save()
-    return HttpResponseRedirect(reverse('tracker:place_order', {'product_list': Product.objects.all(), 'error': "Order has been placed"}, args=()))
+    response_message = 'Order has been placed'
+    #return HttpResponseRedirect(reverse('tracker:place_order', {'product_list': Product.objects.all(), 'error': "Order has been placed"}, args=()))
+    return render(request, 'tracker/place_order.html', {'product_list': Product.objects.all(), 'response': response_message})
 
 @login_required
 def view_orders(request):

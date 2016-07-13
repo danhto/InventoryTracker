@@ -65,7 +65,8 @@
                 <td class="data">{{ order.client }}</td>
                 <td class="data">
                 {% for stock in pending_stock %}}
-                    {{ stock.__str__() }} </br>
+                    {{ stock }} </br>
+                {% endfor %}
                 </td>
                 <td class="data">{{ order.notes }}</td>
 

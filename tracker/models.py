@@ -25,7 +25,7 @@ class Product(models.Model):
     def __str__(self):
         return self.product_name + " - " + self.sm_lot_number
     def __cmp__(self, other):
-        return self.__dict__ == other.__dict__
+        return str(self.product_name) == str(other.product_name) and str(self.sm_lot_number) == str(other.sm_lot_number)
 
 class Inventory(models.Model):
     INVENTORY_THRESHOLD = 50
@@ -68,7 +68,7 @@ class Order(models.Model):
     notes = models.CharField(max_length=200)
     status = models.CharField(max_length=1, choices=STATUS, default=PENDING)
     def __str__(self):
-        return quantity + " of " + self.product + " ordered by " + self.client + " on " + date + ". Additional Notes: " + notes
+        return str(self.quantity) + " of " + self.product.product_name + " ordered by " + self.client + " on " + self.date.strftime("%D") + ". Additional Notes: " + self.notes
     def update_status(self):
         if self.status == PENDING:
             self.status = APPROVED
