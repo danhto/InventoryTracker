@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
-import os
+import os, datetime
 from django.db import models
+from django.utils import timezone
 
 def get_image_path(instance, filename):
     return os.path.join('photos', str(instance.id), filename)
@@ -73,13 +74,16 @@ class Order(models.Model):
         if self.status == PENDING:
             self.status = APPROVED
     def get_stock(self):
-        stocks = []
-        for stock in self.stock.split(","):
-            if len(stock) > 0:
-                stocks.append(stock)
-        return stocks
+        stocks = Pending_Stock.objects.get(order_number=self.order_number)
+        inventories = []
+        for stock in stocks:
+            inventories.append("Lot Number: " + stock.inventory + ", Quantity: " + stock.quantity)
+        return inventories
+    # checks order date to see if it's older than 7 days
     def order_age(self):
-        date_difference = timezone.now() - self.date
+        date_order = self.date.strftime("%D").split("/")
+        date_today = timezone.now().strftime("%D").split("/")
+        date_difference = (int(date_today[0])*30 + int(date_today[1])) - (int(date_order[0])*30 + int(date_order[1]))
         if date_difference > 7 and self.get_status_display() == 'Pending':
             return True
         else:

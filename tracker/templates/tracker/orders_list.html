@@ -35,10 +35,10 @@
 <div id="pending_orders">
     <h1>Current Orders</h1>
     
-    {% if pending_orders %}
+    {% if orders %}
     <table>
         <tr>
-            <th><a href="?order_by=order_number">Order Name</a></th>
+            <th><a href="?order_by=order_number">Order Number</a></th>
             <th><a href="?order_by=product">Product Name</a></th>
             <th>Product Number</th>
             <th><a href="?order_by=date">Order Date</a></th>
@@ -48,12 +48,13 @@
             <th>Notes</th>
 
         </tr>
-        {% for order in pending_orders %}
+        {% for order in orders %}
             {% if order.order_age %}
                 <tr class="red">
             {% else %}
                 <tr>
             {% endif %}
+                <td class="data">{{ order.order_number }}</td>
                 <td class="data">
                     <a href="{% url 'tracker:product_inventory' order.product.product_name.lower %}">
                             {{ order.product.product_name }}
@@ -64,7 +65,7 @@
                 <td class="data">{{ order.quantity }}</td>
                 <td class="data">{{ order.client }}</td>
                 <td class="data">
-                {% for stock in pending_stock %}}
+                {% for stock in order.get_stock %}
                     {{ stock }} </br>
                 {% endfor %}
                 </td>

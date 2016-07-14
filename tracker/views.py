@@ -195,7 +195,7 @@ def new_order(request):
     # inventory_list = inventory_list.order_by('add_date')
     
     # scan all inventory for stock prioritizing full skits then date
-    for index, inventory in inventory_list:
+    for inventory in inventory_list:
         skits_in_inventory = inventory.quantity/MAX_QUANTITY_ON_SKIT
         leftover_in_inventory = inventory.quantity%MAX_QUANTITY_ON_SKIT
         # check if inventory has enough stock to fill as many skits as required by order
@@ -207,14 +207,14 @@ def new_order(request):
                 leftover_in_order = 0
                 pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
                 pending_stock.save()
-                stock = stock + pending_stock.id + ", "
+                stock = stock + str(pending_stock.id) + ", "
             # inventory does not have enough to fullfill leftover requirements of order
             else:
                 quantity_taken = skits_in_order*MAX_QUANTITY_ON_SKIT + leftover_in_inventory
                 leftover_in_order = leftover_in_order - leftover_in_inventory
                 pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
                 pending_stock.save()
-                stock = stock + pending_stock.id + ", "
+                stock = stock + str(pending_stock.id) + ", "
             skits_in_order = 0
         # inventory does not have enough to fullfill skit requirements of order
         else:
@@ -228,13 +228,13 @@ def new_order(request):
                 leftover_in_order = 0
                 pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
                 pending_stock.save()
-                stock = stock + pending_stock.id + ", "
+                stock = stock + str(pending_stock.id) + ", "
             else:
                 quantity_taken = skits_taken + leftover_in_inventory
                 leftover_in_order = leftover_in_order - leftover_in_inventory
                 pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
                 pending_stock.save()
-                stock = stock + pending_stock.id + ", "
+                stock = stock + str(pending_stock.id) + ", "
         # if order quantity has been satisfied stop scanning inventory for stock
         if skits_in_order == 0 and leftover_in_inventory == 0:
             break
