@@ -250,3 +250,20 @@ def view_orders(request):
     order_by = request.GET.get('order_by', 'date')
     orders_all = Order.objects.all().order_by(order_by)
     return render(request, 'tracker/orders_list.html', {'orders': orders_all})
+
+@login_required
+def approve_order(request, order_number):
+    order = Order.objects.get(order_number=order_number)
+    response = order.update_status()
+    order_by = request.GET.get('order_by', 'date')
+    orders_all = Order.objects.all().order_by(order_by)
+    return render(request, 'tracker/orders_list.html', {'orders': orders_all, 'response': response})
+
+@login_required
+def delete_order(request, order_number_:
+    for pending_stock in Pending_Stock.objects.all():
+        if pending_stock.order_number == order_number:
+            pending_stock.delete()
+    order = Order.objects.get(order_number=order_number)
+    order.delete()
+    

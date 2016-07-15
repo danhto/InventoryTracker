@@ -12,6 +12,10 @@ th, td.data {
   text-align: left;
 }
 
+td.tablebutton {
+    border: none;
+}
+
 label.form {
   display: inline-block;
   width: 150px;

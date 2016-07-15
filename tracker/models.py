@@ -70,14 +70,23 @@ class Order(models.Model):
     status = models.CharField(max_length=1, choices=STATUS, default=PENDING)
     def __str__(self):
         return str(self.quantity) + " of " + self.product.product_name + " ordered by " + self.client + " on " + self.date.strftime("%D") + ". Additional Notes: " + self.notes
+    def is_approved(self):
+        if self.get_status_display() == 'Approved':
+            return True
+        else:
+            return False
     def update_status(self):
         if self.status == PENDING:
             self.status = APPROVED
+            return True
+        else:
+            return False
     def get_stock(self):
-        stocks = Pending_Stock.objects.get(order_number=self.order_number)
+        stocks = Pending_Stock.objects.all()
         inventories = []
         for stock in stocks:
-            inventories.append("Lot Number: " + stock.inventory + ", Quantity: " + stock.quantity)
+            if stock.order_number == self.order_number:
+                inventories.append("Lot Number: " + stock.inventory.lot_number + ", Quantity: " + str(stock.quantity))
         return inventories
     # checks order date to see if it's older than 7 days
     def order_age(self):
