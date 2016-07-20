@@ -11,8 +11,7 @@ class Product(models.Model):
     GUM = 'gum'
     PANNED_SUGAR = 'psg'
     JAWBREAKER = 'jaw'
-    CATEGORIES = (
-                  (DEXTROSE, 'Pressed Dextrose'),
+    CATEGORIES = ((DEXTROSE, 'Pressed Dextrose'),
                   (GUM, 'Bubble Gum'),
                   (PANNED_SUGAR, 'Panned Sugar'),
                   (JAWBREAKER, 'Jawbreaker'),)
@@ -25,6 +24,7 @@ class Product(models.Model):
     photo = models.FileField(upload_to=get_image_path, blank=True, null=True)
     def __str__(self):
         return self.product_name + " - " + self.sm_lot_number
+    # compares two product objects for equality based on product_name and sm_lot_number
     def __cmp__(self, other):
         return str(self.product_name) == str(other.product_name) and str(self.sm_lot_number) == str(other.sm_lot_number)
 
@@ -47,6 +47,7 @@ class Inventory(models.Model):
     notes = models.CharField(max_length=200)
     def __str__(self):
         return self.product.product_name + " - " + str(self.lot_number) + " -quantity: " + str(self.quantity) + " -location: " + self.location
+    # checks quantity of inventory if less than 50 return critical is true, if product is popular threshold is 100
     def critical_stock(self):
         if (self.product.popular == 'Yes'):
             self.INVENTORY_THRESHOLD = 100
@@ -70,17 +71,20 @@ class Order(models.Model):
     status = models.CharField(max_length=1, choices=STATUS, default=PENDING)
     def __str__(self):
         return str(self.quantity) + " of " + self.product.product_name + " ordered by " + self.client + " on " + self.date.strftime("%D") + ". Additional Notes: " + self.notes
+    # checks current status of order
     def is_approved(self):
         if self.status == Order.APPROVED:
             return True
         else:
             return False
+    # alter the specified order from pending to approved
     def update_status(self):
         if self.status == Order.PENDING:
             self.status = Order.APPROVED
             return True
         else:
             return False
+    # returns a string based view of the stock field
     def get_stock(self):
         stocks = Pending_Stock.objects.all()
         inventories = []
