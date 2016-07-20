@@ -12,6 +12,19 @@ th, td.data {
   text-align: left;
 }
 
+td.pending_status {
+    border: none;
+}
+
+#approve_button {
+    background-color: yellow;
+}
+
+td.approved_status {
+    border: none;
+    background: green;
+}
+
 td.tablebutton {
     border: none;
 }

@@ -71,13 +71,13 @@ class Order(models.Model):
     def __str__(self):
         return str(self.quantity) + " of " + self.product.product_name + " ordered by " + self.client + " on " + self.date.strftime("%D") + ". Additional Notes: " + self.notes
     def is_approved(self):
-        if self.get_status_display() == 'Approved':
+        if self.status == Order.APPROVED:
             return True
         else:
             return False
     def update_status(self):
-        if self.status == PENDING:
-            self.status = APPROVED
+        if self.status == Order.PENDING:
+            self.status = Order.APPROVED
             return True
         else:
             return False

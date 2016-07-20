@@ -137,6 +137,20 @@ class InventoryMethodTests(TestCase):
         self.assertEqual(inventory.standard, 'Yes')
         self.assertEqual(inventory.dessicate, 'No')
 
+class OrderMethodTests(TestCase):
+
+    # Tests to make sure orders are created with pending status as default
+    def test_order_creation(self):
+        product = createProductA()
+        inventory = createInventory(product, 'AA')
+        order = createOrder(product, 50)
+        self.assertEqual(order.is_approved(), False)
+        self.assertEqual(order.get_status_display(), 'Pending')
+
+        # status changes to approved after method update_status is called
+        order.update_status()
+        self.assertEqual(order.is_approved(), True)
+
 class ObjectCreationTests(TestCase):
 
     # Check created objects exist in database

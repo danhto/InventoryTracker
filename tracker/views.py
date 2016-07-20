@@ -247,23 +247,41 @@ def new_order(request):
 
 @login_required
 def view_orders(request):
+    # retrieves and displays all current orders in system and renders orders_list.html
     order_by = request.GET.get('order_by', 'date')
     orders_all = Order.objects.all().order_by(order_by)
     return render(request, 'tracker/orders_list.html', {'orders': orders_all})
 
 @login_required
 def approve_order(request, order_number):
+    order_number = int(order_number)
+    # change status of pending orders selected in orders_list.html
     order = Order.objects.get(order_number=order_number)
     response = order.update_status()
+    if response:
+        response = 'Order ' + str(order_number) + ' has been successfully approved. Stock has been removed from inventory.'
+        order.save()
+        # remove quantity for pending_stock from inventory
+        for stock in Pending_Stock.objects.all():
+            if stock.order_number == order_number:
+                inventory = stock.inventory
+                inventory.quantity = inventory.quantity - stock.quantity
+                inventory.save()
+    else:
+        response = 'Error: Order ' + str(order_number) + ' is already approved.'
     order_by = request.GET.get('order_by', 'date')
     orders_all = Order.objects.all().order_by(order_by)
     return render(request, 'tracker/orders_list.html', {'orders': orders_all, 'response': response})
 
 @login_required
-def delete_order(request, order_number_:
+def delete_order(request, order_number):
+    order_number = int(order_number)
+    # delete pending_stock from associated orders
     for pending_stock in Pending_Stock.objects.all():
         if pending_stock.order_number == order_number:
             pending_stock.delete()
+    # delete orders from system based on order_number selected in orders_list.html
     order = Order.objects.get(order_number=order_number)
     order.delete()
-    
+    response = 'Order deleted'
+    return render(request, 'tracker/orders_list.html', {'orders': Order.objects.all(), 'response': response})

@@ -31,7 +31,11 @@
         </td>
     </tr>
 </table>
-    
+
+{% if response %}
+    <h1>{{ response }}</h1>
+{% endif %}
+
 <div id="pending_orders">
     <h1>Current Orders</h1>
     
@@ -71,21 +75,21 @@
                 </td>
                 <td class="data">{{ order.notes }}</td>
                 {% if order.is_approved %}
-                    <td class="tablebutton">
+                    <td class="approved_status">Approved</td>
+                {% else %}
+                    <td class="pending_status">
                         <form action="{% url 'tracker:approve_order' order.order_number %}" method="post">
                             {% csrf_token %}
-                            <input type="submit" value="Approve" />
+                            <input id='approve_button' type="submit" value="Approve" />
                         </form>
                     </td>
-                {% else %}
-                    <td class="data">Approved</td>
                 {% endif %}
-                <td class="tablebutton">
-                    <form action="{% url 'tracker:delete_order' order.order_number %}" method="post">
+                    <td class="tablebutton">
+                        <form action="{% url 'tracker:delete_order' order.order_number %}" method="post">
                         {% csrf_token %}
-                        <input type="submit" value="Delete" />
-                    </form>
-                </td>
+                            <input type="submit" value="Delete" />
+                        </form>
+                    </td>
                 </tr>
         {% endfor %}
     </table>

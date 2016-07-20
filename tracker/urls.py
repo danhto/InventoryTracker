@@ -36,4 +36,8 @@ urlpatterns = [
                url(r'^new_order/$', views.new_order, name='new_order'),
                # ex: /view_orders renders orders_list.html and displays all current orders in system
                url(r'^view_orders/$', views.view_orders, name='view_orders'),
+               # ex: /delete_order/1 deletes indicated order based on order number
+               url(r'^delete_order/(?P<order_number>\d+)$', views.delete_order, name='delete_order'),
+               # ex: /view_orders renders orders_list.html and displays all current orders in system
+               url(r'^approve_order/(?P<order_number>\d+)$', views.approve_order, name='approve_order'),
                ]
