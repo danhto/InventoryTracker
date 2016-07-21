@@ -4,7 +4,7 @@ from tracker.models import Product, Inventory, Order, Pending_Stock
 from django.core.urlresolvers import reverse
 from django.utils import timezone
 from django.contrib import messages, auth
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth import logout, login, authenticate
 from django.contrib.auth.views import logout_then_login
 from django.core.exceptions import ObjectDoesNotExist
@@ -47,6 +47,7 @@ def getCategories():
 
 # Add product calls the add_product.html view
 @login_required
+@permission_required('tracker.can_add_product', raise_exception=True)
 def add_product(request):
     categories = getCategories()
     products = Product.objects.all()
@@ -60,6 +61,7 @@ def add_product(request):
 
 # Creates and store product based on values entered into the new_product form
 @login_required
+@permission_required('tracker.can_add_product', raise_exception=True)
 def new_product(request):
     product_name = request.POST['product_name']
     sm_lot_number = request.POST['sm_lot_number']
@@ -79,12 +81,14 @@ def new_product(request):
     return HttpResponseRedirect(reverse('tracker:add_product', args=()))
 
 @login_required
+@permission_required('tracker.can_add_product', raise_exception=True)
 def product_details(request, sm_lot_number):
     product = Product.objects.get(sm_lot_number=sm_lot_number)
     return render(request, 'tracker/product_details.html', {'product': product,})
 
 # Removes product from database
 @login_required
+@permission_required('tracker.can_delete_product', raise_exception=True)
 def delete_product(request):
     sm_lot_number = request.POST['sm_lot_number']
     product = Product.objects.get(sm_lot_number=sm_lot_number)
@@ -96,11 +100,13 @@ def delete_product(request):
 
 # Add new inventory for an existing product
 @login_required
+@permission_required('tracker.can_add_inventory', raise_exception=True)
 def add_inventory(request):
     return render(request, 'tracker/add_inventory.html', {'product_list': Product.objects.all()})
 
 # Creates and stores inventory based on values entered into the new_inventory form
 @login_required
+@permission_required('tracker.can_add_inventory', raise_exception=True)
 def new_inventory(request):
     sm_lot_number = str(request.POST['sm_lot_number'])
     lot_number = str(request.POST['lot_number'])
@@ -140,6 +146,7 @@ def new_inventory(request):
 
 # Updates the quantity of an existing inventory
 @login_required
+@permission_required('tracker.can_change_inventory', raise_exception=True)
 def update_inventory(request, counter):
     lot_number = str(request.POST['lot_number'+counter])
     quantity = str(request.POST['quantity'+counter])
@@ -156,12 +163,14 @@ def update_inventory(request, counter):
 
 # Opens product ordering webpage
 @login_required
+@permission_required('tracker.can_add_order', raise_exception=True)
 def place_order(request):
     product_list = Product.objects.all()
     pending_stock = Pending_Stock.objects.all()
     return render(request, 'tracker/place_order.html', {'product_list': product_list, 'pending_stock': pending_stock})
 
 @login_required
+@permission_required('tracker.can_add_order', raise_exception=True)
 def new_order(request):
     MAX_QUANTITY_ON_SKIT = 64
     order_number = None
@@ -253,6 +262,7 @@ def view_orders(request):
     return render(request, 'tracker/orders_list.html', {'orders': orders_all})
 
 @login_required
+@permission_required('tracker.can_change_order', raise_exception=True)
 def approve_order(request, order_number):
     order_number = int(order_number)
     # change status of pending orders selected in orders_list.html
@@ -274,6 +284,7 @@ def approve_order(request, order_number):
     return render(request, 'tracker/orders_list.html', {'orders': orders_all, 'response': response})
 
 @login_required
+@permission_required('tracker.can_delete_order', raise_exception=True)
 def delete_order(request, order_number):
     order_number = int(order_number)
     # delete pending_stock from associated orders

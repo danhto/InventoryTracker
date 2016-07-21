@@ -29,6 +29,10 @@ td.tablebutton {
     border: none;
 }
 
+td.menu {
+    
+}
+
 label.form {
   display: inline-block;
   width: 150px;
