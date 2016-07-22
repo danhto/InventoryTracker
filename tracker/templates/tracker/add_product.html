@@ -1,30 +1,42 @@
 {% load staticfiles %}
 <link rel="stylesheet" href="{% static 'tracker/css/style.css' %}">
 
-<table class="menu">
-    <tr>
-        <td class="menu">
-            <form action="{% url 'tracker:index' %}">
-                <input type="submit" value="Inventory List">
-            </form>
-        </td>
-        <td class="menu">
-            <form action="{% url 'tracker:view_orders' %}">
-                <input type="submit" value="Orders List">
-            </form>
-        </td>
-        <td class="menu">
-            <form action="{% url 'tracker:add_inventory' %}">
-                <input type="submit" value="Add New Inventory">
-            </form>
-        </td>
-        <td class="menu">
-            <form action="{% url 'tracker:log_out' %}">
-                <input type="submit" value="Logout">
-             </form>
-        </td>
-    </tr>
-</table>
+<ul id="menu-bar">
+    <li>
+        <a href="{% url 'tracker:index' %}">
+            Inventory
+        </a>
+        <ul class="second-level-menu">
+            <li>
+                <a href="{% url 'tracker:add_inventory' %}">
+                    New Inventory
+                </a>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <a href="{% url 'tracker:view_orders' %}">
+            Orders
+        </a>
+        <ul class="second-level-menu">
+            <li>
+                <a href="{% url 'tracker:place_order' %}">
+                    New Order
+                </a>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <a href="{% url 'tracker:add_product' %}">
+            Products
+        </a>
+    </li>
+    <li>
+        <a href="{% url 'tracker:log_out' %}">
+            Logout
+        </a>
+    </li>
+</ul>
 
 <h1>New Product</h1>
 
