@@ -1,13 +1,288 @@
-td {
-    backgroundColor: red;
+/* Menu formatting */
+#menu-bar {
+    width: 98%;
+    margin: 0px 0px 0px 0px;
+    padding: 6px 6px 4px 6px;
+    height: 40px;
+    line-height: 100%;
+    border-radius: 8px;
+    -webkit-border-radius: 8px;
+    -moz-border-radius: 8px;
+    box-shadow: 2px 2px 3px #666666;
+    -webkit-box-shadow: 2px 2px 3px #666666;
+    -moz-box-shadow: 2px 2px 3px #666666;
+    background: #FF4545;
+    border: solid 1px #6D6D6D;
+    position:relative;
+    z-index:999;
+}
+#menu-bar li {
+    margin: 0px 0px 6px 0px;
+    padding: 1px 6px 0px 6px;
+    float: left;
+    position: relative;
+    list-style: none;
+}
+#menu-bar a {
+    font-weight: bold;
+    font-family: arial;
+    font-style: normal;
+    font-size: 18px;
+    color: #E7E5E5;
+    text-decoration: none;
+    display: block;
+    padding: 6px 20px 6px 20px;
+    margin: 0;
+    margin-bottom: 6px;
+    border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    text-shadow: 2px 2px 3px #000000;
+}
+#menu-bar li ul li a {
+    margin: 0;
+}
+#menu-bar .active a, #menu-bar li:hover > a {
+    background: #FFFFFF;
+    color: #444444;
+    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .2);
+    -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, .2);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, .2);
+    text-shadow: 2px 2px 3px #FFFFFF;
+}
+#menu-bar ul li:hover a, #menu-bar li:hover li a {
+    background: none;
+    border: none;
+    color: #666;
+    -box-shadow: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+}
+#menu-bar ul a:hover {
+    background: #0399D4 !important;
+    background: linear-gradient(top,  #04ACEC,  #0186BA) !important;
+    background: -ms-linear-gradient(top,  #04ACEC,  #0186BA) !important;
+    background: -webkit-gradient(linear, left top, left bottom, from(#04ACEC), to(#0186BA)) !important;
+    background: -moz-linear-gradient(top,  #04ACEC,  #0186BA) !important;
+    color: #FFFFFF !important;
+    border-radius: 0;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    text-shadow: 2px 2px 3px #FFFFFF;
+}
+#menu-bar li:hover > ul {
+    display: block;
+}
+#menu-bar ul {
+    background: #FCFCFC;
+    display: none;
+    margin: 0;
+    padding: 0;
+    width: 185px;
+    position: absolute;
+    top: 31px;
+    left: 0;
+    border: solid 1px #B4B4B4;
+    border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    -webkit-box-shadow: 2px 2px 3px #222222;
+    -moz-box-shadow: 2px 2px 3px #222222;
+    box-shadow: 2px 2px 3px #222222;
+}
+#menu-bar ul li {
+    float: none;
+    margin: 0;
+    padding: 0;
+}
+#menu-bar ul a {
+    padding:10px 0px 10px 15px;
+    color:#424242 !important;
+    font-size:16px;
+    font-style:normal;
+    font-family:arial;
+    font-weight: normal;
+    text-shadow: 2px 2px 3px #FFFFFF;
+}
+#menu-bar ul li:first-child > a {
+    border-top-left-radius: 10px;
+    -webkit-border-top-left-radius: 10px;
+    -moz-border-radius-topleft: 10px;
+    border-top-right-radius: 10px;
+    -webkit-border-top-right-radius: 10px;
+    -moz-border-radius-topright: 10px;
+}
+#menu-bar ul li:last-child > a {
+    border-bottom-left-radius: 10px;
+    -webkit-border-bottom-left-radius: 10px;
+    -moz-border-radius-bottomleft: 10px;
+    border-bottom-right-radius: 10px;
+    -webkit-border-bottom-right-radius: 10px;
+    -moz-border-radius-bottomright: 10px;
+}
+#menu-bar:after {
+    content: ".";
+    display: block;
+    clear: both;
+    visibility: hidden;
+    line-height: 0;
+    height: 0;
+}
+#menu-bar {
+    display: inline-block;
+}
+html[xmlns] #menu-bar {
+    display: block;
+}
+* html #menu-bar {
+    height: 1%;
+}
+
+/* --------------------- */
+
+/* Table formatting */
+
+table {
+    width: 100%;
 }
 
 th {
-    backgroundColor: blue;
+    font: 300 1.2em/2 'Lucida Grande', sans-serif;
+    text-align: center;
+    text-transform: uppercase;
+    border: 1px solid #999;
+    padding: 0.5rem;
 }
 
-th, td {
+tr.red {
+    background: red;
+}
+
+td.data {
+    font: 200 1em/2 'Verdana', sans-serif;
     border: 1px solid #999;
     padding: 0.5rem;
     text-align: left;
 }
+
+td.pending_status {
+    border: none;
+}
+
+#approve_button {
+    background-color: yellow;
+}
+
+/*td.approved_status {
+    border: none;
+    background: green;
+}
+
+td.tablebutton {
+    border: none;
+}*/
+
+td.menu {
+    
+}
+/* --------------------- */
+
+/* Form and form element formatting */
+
+label.form {
+    display: inline-block;
+    width: 150px;
+    font-weight: bold;
+}
+
+label.lbl_product_details {
+    display: inline-block;
+}
+
+form, input {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+}
+
+input, select, text {
+    font-family : inherit;
+    font-size   : 100%;
+    display: inline-block;
+    width: 175px;
+    padding: 12px 15px;
+    margin: 12px 5;
+    box-sizing: border-box;
+}
+
+input[type=file] {
+    width: 300px;
+}
+
+input[type=submit] {
+    font-family : inherit;
+    font-size   : 100%;
+    width: 150px;
+    height: 50px;
+    padding: 12px 15px;
+    margin: 12px 5;
+}
+
+/* --------------------- */
+
+/* Specific element formatting */
+
+#product_info {
+    display: inline-block;
+    float: left;
+}
+
+#product_photo_div {
+    display: inline-block;
+  
+}
+
+#product_photo {
+    display: block;
+    margin: 10% 40%;
+    width: 300px;
+    height: 300px;
+}
+
+td.approved_status {
+   background: url("images/delete_x.jpg") no-repeat;
+}
+
+td.tablebutton {
+   background-image: url("images/delete_x.jpg") no-repeat;
+}
+
+div#delete_order input{
+  background: url("images/delete_x.jpg") no-repeat scroll 0 0;
+  color: #000000;
+  cursor: pointer;
+  font-weight: bold;
+  height: 50px;
+  padding-bottom: 2px;
+  width: 25px;
+}
+
+/* --------------------- */
+
+/* Title formatting */
+
+h1 {
+    font: 600 2em/2 'Raleway', sans-serif;
+    color: rgba(0,0,0,.5);
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: .3em;
+    width: 100%;
+    border-bottom: ridge #ff0000;
+    -webkit-box-shadow: 0 4px 4px -3px #000000;
+    -moz-box-shadow: 0 4px 4px -3px #000000;
+    box-shadow: 0 4px 4px -3px #000000;
+
+}
+
+/* --------------------- */

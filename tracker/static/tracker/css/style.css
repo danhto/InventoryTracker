@@ -1,6 +1,6 @@
 /* Menu formatting */
 #menu-bar {
-    width: 95%;
+    width: 98%;
     margin: 0px 0px 0px 0px;
     padding: 6px 6px 4px 6px;
     height: 40px;
@@ -144,83 +144,95 @@ html[xmlns] #menu-bar {
 
 table {
     width: 100%;
-}
-
-tr.red {
-  background: red;
+    border: 1px solid black;
+    background: #FF8C69;
 }
 
 th {
-  background: cyan;
+    font: 300 1.2em/2 'Lucida Grande', sans-serif;
+    text-align: center;
+    text-transform: uppercase;
+    border: 1px solid black;
+    border-bottom: 4px ridge red;
+    padding: 0.5rem;
+    background: white;
 }
 
-th, td.data {
-  border: 1px solid #999;
-  padding: 0.5rem;
-  text-align: left;
+tr.red {
+    background: red;
+}
+
+tr {
+    background: white;
+}
+
+td.data {
+    font: 200 1em/2 'Verdana', sans-serif;
+    border: 1px solid #999;
+    padding: 0.5em;
+    text-align: left;
 }
 
 td.pending_status {
-    border: none;
-}
-
-#approve_button {
-    background-color: yellow;
+    border: 1px solid #999;
+    font: 600 1.25em/2.5 'Raleway', sans-serif;
+    text-align: center;
+    vertical-align: top;
+    background: yellow;
+    color: orange;
+    text-transform: uppercase;
 }
 
 td.approved_status {
-    border: none;
-    background: green;
-}
-
-td.tablebutton {
-    border: none;
-}
-
-td.menu {
-    
+   border: 1px solid #999;
+   text-align: center;
+   vertical-align: bottom;
+   background: url("../images/approved_checkmark.jpeg") no-repeat transparent;
+   background-size: 75% 75%;
+   background-position: center top;
+   padding: 0em 0.5em 0.5em 0em;
 }
 /* --------------------- */
 
 /* Form and form element formatting */
 
 label.form {
-  display: inline-block;
-  width: 150px;
-  font-weight: bold;
+    display: inline-block;
+    width: 150px;
+    font-weight: bold;
 }
 
 label.lbl_product_details {
-  display: inline-block;
+    display: inline-block;
 }
 
 form, input {
-  box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
 }
 
 input, select, text {
-  font-family : inherit;
-  font-size   : 100%;
-  display: inline-block;
-  width: 175px;
-  padding: 12px 15px;
-  margin: 12px 5;
-  box-sizing: border-box;
+    font-family : inherit;
+    font-size   : 100%;
+    display: inline-block;
+    width: 175px;
+    padding: 12px 15px;
+    margin: 12px 5;
+    box-sizing: border-box;
 }
 
 input[type=file] {
-  width: 300px;
+    width: 300px;
 }
 
 input[type=submit] {
-  font-family : inherit;
-  font-size   : 100%;
-  width: 150px;
-  height: 50px;
-  padding: 12px 15px;
-  margin: 12px 5;
+    font-family : inherit;
+    font-size   : 100%;
+    width: 150px;
+    height: 50px;
+    padding: 12px 15px;
+    margin: 12px 5;
 }
 
 /* --------------------- */
@@ -228,20 +240,44 @@ input[type=submit] {
 /* Specific element formatting */
 
 #product_info {
-  display: inline-block;
-  float: left;
+    display: inline-block;
+    float: left;
 }
 
 #product_photo_div {
-  display: inline-block;
+    display: inline-block;
   
 }
 
 #product_photo {
-  display: block;
-  margin: 10% 40%;
-  width: 300px;
-  height: 300px;
+    display: block;
+    margin: 10% 40%;
+    width: 300px;
+    height: 300px;
+}
+
+/* test element */
+div#test {
+    background: url("../images/delete_x.jpg") no-repeat 0 0;
+}
+
+input#approve_button {
+    background: yellow;
+    cursor: pointer;
+    height: 50px;
+    width: 105px;
+}
+
+div#delete_order input{
+    background: url("../images/delete_x.jpg") no-repeat;
+    background-position: center center;
+    background-size: 65px 42px;
+    color: #000000;
+    cursor: pointer;
+    font-weight: bold;
+    height: 50px;
+    padding-bottom: 2px;
+    width: 70px;
 }
 
 /* --------------------- */
@@ -255,7 +291,11 @@ h1 {
     text-transform: uppercase;
     letter-spacing: .3em;
     width: 100%;
-    border-bottom: thick dotted #ff0000;
+    border-bottom: ridge #ff0000;
+    -webkit-box-shadow: 0 4px 4px -3px #000000;
+    -moz-box-shadow: 0 4px 4px -3px #000000;
+    box-shadow: 0 4px 4px -3px #000000;
+
 }
 
 /* --------------------- */

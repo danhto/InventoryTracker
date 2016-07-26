@@ -57,6 +57,8 @@
             <th><a href="?order_by=client">Client</a></th>
             <th>Pending Stock</th>
             <th>Notes</th>
+            <th>Status</th>
+            <th></th>
 
         </tr>
         {% for order in orders %}
@@ -87,6 +89,7 @@
                     <td class="pending_status">
                         <form action="{% url 'tracker:approve_order' order.order_number %}" method="post">
                             {% csrf_token %}
+                            Pending
                             <input id='approve_button' type="submit" value="Approve" />
                         </form>
                     </td>
@@ -94,7 +97,9 @@
                     <td class="tablebutton">
                         <form action="{% url 'tracker:delete_order' order.order_number %}" method="post">
                         {% csrf_token %}
-                            <input type="submit" value="Delete" />
+                            <div id="delete_order">
+                                <input type="submit" value="DEL" />
+                            </div>
                         </form>
                     </td>
                 </tr>
