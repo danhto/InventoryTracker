@@ -1,13 +1,14 @@
 from django.shortcuts import render
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from tracker.models import Product, Inventory, Order, Pending_Stock
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, resolve
 from django.utils import timezone
 from django.contrib import messages, auth
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth import logout, login, authenticate
 from django.contrib.auth.views import logout_then_login
 from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponseForbidden
 
 def log_out(request):
     return logout_then_login(request,login_url='/tracker/login')
@@ -16,10 +17,11 @@ def log_out(request):
 @login_required
 def index(request):
     order_by = request.GET.get('order_by', 'add_date')
+    inventory_list = []
     for inventory in Inventory.objects.all():
-        if inventory.quantity < 1:
-            inventory.delete()
-    inventory_list = Inventory.objects.all().order_by(order_by)
+        if not inventory.no_stock():
+            inventory_list.append(inventory)
+    inventory_list = sorted(inventory_list, key=lambda inventory: order_by)
     context = {'inventory_list': inventory_list}
     return render(request, 'tracker/index.html', context)
 
@@ -47,7 +49,7 @@ def getCategories():
 
 # Add product calls the add_product.html view
 @login_required
-@permission_required('tracker.can_add_product', raise_exception=True)
+@permission_required('tracker.add_product', raise_exception=True)
 def add_product(request):
     categories = getCategories()
     products = Product.objects.all()
@@ -61,7 +63,7 @@ def add_product(request):
 
 # Creates and store product based on values entered into the new_product form
 @login_required
-@permission_required('tracker.can_add_product', raise_exception=True)
+@permission_required('tracker.add_product', raise_exception=True)
 def new_product(request):
     product_name = request.POST['product_name']
     sm_lot_number = request.POST['sm_lot_number']
@@ -81,14 +83,14 @@ def new_product(request):
     return HttpResponseRedirect(reverse('tracker:add_product', args=()))
 
 @login_required
-@permission_required('tracker.can_add_product', raise_exception=True)
+@permission_required('tracker.add_product', raise_exception=True)
 def product_details(request, sm_lot_number):
     product = Product.objects.get(sm_lot_number=sm_lot_number)
     return render(request, 'tracker/product_details.html', {'product': product,})
 
 # Removes product from database
 @login_required
-@permission_required('tracker.can_delete_product', raise_exception=True)
+@permission_required('tracker.delete_product', raise_exception=True)
 def delete_product(request):
     sm_lot_number = request.POST['sm_lot_number']
     product = Product.objects.get(sm_lot_number=sm_lot_number)
@@ -100,13 +102,13 @@ def delete_product(request):
 
 # Add new inventory for an existing product
 @login_required
-@permission_required('tracker.can_add_inventory', raise_exception=True)
+@permission_required('tracker.add_inventory', raise_exception=True)
 def add_inventory(request):
     return render(request, 'tracker/add_inventory.html', {'product_list': Product.objects.all()})
 
 # Creates and stores inventory based on values entered into the new_inventory form
 @login_required
-@permission_required('tracker.can_add_inventory', raise_exception=True)
+@permission_required('tracker.add_inventory', raise_exception=True)
 def new_inventory(request):
     sm_lot_number = str(request.POST['sm_lot_number'])
     lot_number = str(request.POST['lot_number'])
@@ -146,7 +148,7 @@ def new_inventory(request):
 
 # Updates the quantity of an existing inventory
 @login_required
-@permission_required('tracker.can_change_inventory', raise_exception=True)
+@permission_required('tracker.change_inventory', raise_exception=True)
 def update_inventory(request, counter):
     lot_number = str(request.POST['lot_number'+counter])
     quantity = str(request.POST['quantity'+counter])
@@ -163,14 +165,14 @@ def update_inventory(request, counter):
 
 # Opens product ordering webpage
 @login_required
-@permission_required('tracker.can_add_order', raise_exception=True)
+@permission_required('tracker.add_order', raise_exception=True)
 def place_order(request):
     product_list = Product.objects.all()
     pending_stock = Pending_Stock.objects.all()
     return render(request, 'tracker/place_order.html', {'product_list': product_list, 'pending_stock': pending_stock})
 
 @login_required
-@permission_required('tracker.can_add_order', raise_exception=True)
+@permission_required('tracker.add_order', raise_exception=True)
 def new_order(request):
     MAX_QUANTITY_ON_SKIT = 64
     order_number = None
@@ -199,9 +201,9 @@ def new_order(request):
     # make a list of all inventory that contain product in order and order by date
     for inventory in Inventory.objects.all():
         if inventory.product.__cmp__(product):
-            inventory_list.append(inventory)
+            if not inventory.no_stock():
+                inventory_list.append(inventory)
     inventory_list = sorted(inventory_list, key=lambda inventory: inventory.add_date)
-    # inventory_list = inventory_list.order_by('add_date')
     
     # scan all inventory for stock prioritizing full skits then date
     for inventory in inventory_list:
@@ -239,20 +241,24 @@ def new_order(request):
                 pending_stock.save()
                 stock = stock + str(pending_stock.id) + ", "
             else:
-                quantity_taken = skits_taken + leftover_in_inventory
-                leftover_in_order = leftover_in_order - leftover_in_inventory
-                pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
-                pending_stock.save()
-                stock = stock + str(pending_stock.id) + ", "
+                if leftover_in_inventory != 0:
+                    quantity_taken = skits_taken + leftover_in_inventory
+                    leftover_in_order = leftover_in_order - leftover_in_inventory
+                    pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
+                    pending_stock.save()
+                    stock = stock + str(pending_stock.id) + ", "
         # if order quantity has been satisfied stop scanning inventory for stock
         if skits_in_order == 0 and leftover_in_inventory == 0:
             break
-                
-    order = Order(order_number=order_number, product=product, date=date, quantity=quantity, stock=stock, client=client, notes=notes)
-    order.save()
-    response_message = 'Order has been placed'
-    #return HttpResponseRedirect(reverse('tracker:place_order', {'product_list': Product.objects.all(), 'error': "Order has been placed"}, args=()))
-    return render(request, 'tracker/place_order.html', {'product_list': Product.objects.all(), 'response': response_message})
+
+    if skits_in_order != 0 and leftover_in_inventory != 0:
+        response_message = 'Insufficient inventory to place order!'
+        return render(request, 'tracker/place_order.html', {'product_list': Product.objects.all(), 'response': response_message})
+    else:
+        order = Order(order_number=order_number, product=product, date=date, quantity=quantity, stock=stock, client=client, notes=notes)
+        order.save()
+        response_message = 'Order has been placed'
+        return render(request, 'tracker/place_order.html', {'product_list': Product.objects.all(), 'response': response_message})
 
 @login_required
 def view_orders(request):
@@ -262,7 +268,7 @@ def view_orders(request):
     return render(request, 'tracker/orders_list.html', {'orders': orders_all})
 
 @login_required
-@permission_required('tracker.can_change_order', raise_exception=True)
+@permission_required('tracker.change_order', raise_exception=True)
 def approve_order(request, order_number):
     order_number = int(order_number)
     # change status of pending orders selected in orders_list.html
@@ -284,11 +290,14 @@ def approve_order(request, order_number):
     return render(request, 'tracker/orders_list.html', {'orders': orders_all, 'response': response})
 
 @login_required
-@permission_required('tracker.can_delete_order', raise_exception=True)
+@permission_required('tracker.delete_order', raise_exception=True)
 def delete_order(request, order_number):
     order_number = int(order_number)
     # delete pending_stock from associated orders
     for pending_stock in Pending_Stock.objects.all():
+        if pending_stock.inventory.no_stock():
+            lot = str(pending_stock.inventory.lot_number)
+            Inventory.objects.get(lot_number=lot).delete()
         if pending_stock.order_number == order_number:
             pending_stock.delete()
     # delete orders from system based on order_number selected in orders_list.html
@@ -296,3 +305,7 @@ def delete_order(request, order_number):
     order.delete()
     response = 'Order deleted'
     return render(request, 'tracker/orders_list.html', {'orders': Order.objects.all(), 'response': response})
+
+# custom view for permission denied exception
+def custom_permission_denied_view(request):
+    return render(request, 'tracker/403.html', {}, status=403)

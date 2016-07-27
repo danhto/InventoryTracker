@@ -47,6 +47,12 @@ class Inventory(models.Model):
     notes = models.CharField(max_length=200)
     def __str__(self):
         return self.product.product_name + " - " + str(self.lot_number) + " -quantity: " + str(self.quantity) + " -location: " + self.location
+    # checks if inventory is empty
+    def no_stock(self):
+        if (self.quantity < 1):
+            return True
+        else:
+            return False
     # checks quantity of inventory if less than 50 return critical is true, if product is popular threshold is 100
     def critical_stock(self):
         if (self.product.popular == 'Yes'):

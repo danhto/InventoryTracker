@@ -1,6 +1,6 @@
 {% load staticfiles %}
 <link rel="stylesheet" href="{% static 'tracker/css/style.css' %}">
-    
+
 <ul id="menu-bar">
     <li>
         <a href="{% url 'tracker:index' %}">
@@ -38,20 +38,11 @@
     </li>
 </ul>
 
-<h1>{{ product.product_name }}</h1>
+<h2> Access Denied </h2>
 
-<div id="product_info">
-    <p id="sm_lot_number" class="p_product_details">Product Number: {{ product.sm_lot_number }}</p><br /><br />
+<p>
+    You do not have sufficient permissions to access this feature.
+    <br/><br/>
+    Please contact your administrator to obtain the necessary permissions or log into an appropriate account.
+</p>
 
-    <p id="weight" class="p_product_details">Weight: {{ product.weight }}</p><br /><br />
-
-    <p id="pieces" class="p_product_details">Pieces: {{ product.pieces }}</p><br /><br />
-
-    <p id="category" class="p_product_details">Category: {{ product.get_category_display }}</p><br /><br />
-
-    <p id="popular" class="p_product_details">Popular Product: {{ product.popular }}</p>
-</div>
-
-<div id="product_photo_div">
-    <img id="product_photo" src="{{ product.photo.url }}" id="photo"/>
-</div>

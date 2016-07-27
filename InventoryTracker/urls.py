@@ -29,3 +29,5 @@ urlpatterns = [
                url('^', include('django.contrib.auth.urls')),
                ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += staticfiles_urlpatterns()
+
+handler403 = 'tracker.views.custom_permission_denied_view'
