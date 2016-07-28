@@ -38,11 +38,10 @@
     </li>
 </ul>
 
-{% if added %}<p><strong>Inventory successfully added</strong></p>{% endif %}
+{% if error_message %}<h2 class="error">{{ error_message }}</h2>{% endif %}
+{% if added %}<h2>Inventory successfully added</h2>{% endif %}
 
 <h1>New Inventory</h1>
-
-{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
 <form action="{% url 'tracker:new_inventory' %}" method="post">
     {% csrf_token %}

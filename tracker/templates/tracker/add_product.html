@@ -38,9 +38,9 @@
     </li>
 </ul>
 
-<h1>New Product</h1>
+{% if error_message %}<h2 class="error">{{ error_message }}</h2>{% endif %}
 
-{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+<h1>New Product</h1>
 
 <form action="{% url 'tracker:new_product' %}" enctype="multipart/form-data" method="post">
     {% csrf_token %}

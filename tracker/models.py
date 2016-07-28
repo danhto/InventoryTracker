@@ -7,6 +7,7 @@ def get_image_path(instance, filename):
     return os.path.join('photos', str(instance.id), filename)
 
 class Product(models.Model):
+    KG_TO_LBS_CONVERSION = 2.20462
     DEXTROSE = 'dex'
     GUM = 'gum'
     PANNED_SUGAR = 'psg'
@@ -22,6 +23,8 @@ class Product(models.Model):
     category = models.CharField(max_length=3,choices=CATEGORIES,default=DEXTROSE)
     popular = models.CharField(max_length=3,default='No')
     photo = models.FileField(upload_to=get_image_path, blank=True, null=True)
+    def get_pounds(self):
+        return "{0:.2f}".format(Product.KG_TO_LBS_CONVERSION * float(self.weight))
     def __str__(self):
         return self.product_name + " - " + self.sm_lot_number
     # compares two product objects for equality based on product_name and sm_lot_number

@@ -41,15 +41,20 @@
 <h1>{{ product.product_name }}</h1>
 
 <div id="product_info">
-    <p id="sm_lot_number" class="p_product_details">Product Number: {{ product.sm_lot_number }}</p><br /><br />
+    <p id="sm_lot_number" class="p_product_details">Product Number: </p>
+    <p class="p_product_details_value">{{ product.sm_lot_number }}</p><br /><br />
 
-    <p id="weight" class="p_product_details">Weight: {{ product.weight }}</p><br /><br />
+    <p id="weight" class="p_product_details">Weight: </p>
+    <p class="p_product_details_value">{{ product.weight }} KG / {{ product.get_pounds }} LBS</p><br /><br />
 
-    <p id="pieces" class="p_product_details">Pieces: {{ product.pieces }}</p><br /><br />
+    <p id="pieces" class="p_product_details">Pieces: </p>
+    <p class="p_product_details_value">{{ product.pieces }}</p><br /><br />
 
-    <p id="category" class="p_product_details">Category: {{ product.get_category_display }}</p><br /><br />
+    <p id="category" class="p_product_details">Category: </p>
+    <p class="p_product_details_value">{{ product.get_category_display }}</p><br /><br />
 
-    <p id="popular" class="p_product_details">Popular Product: {{ product.popular }}</p>
+    <p id="popular" class="p_product_details">Popular Product: </p>
+    <p class="p_product_details_value">{{ product.popular }}</p>
 </div>
 
 <div id="product_photo_div">

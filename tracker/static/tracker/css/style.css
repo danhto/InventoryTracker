@@ -282,7 +282,31 @@ div#delete_order input{
 
 /* --------------------- */
 
-/* Title formatting */
+/* Product display formatting */
+
+p.p_product_details {
+    font: 700 1.5em/2 'Lucida Grande', sans-serif;
+    border-right: ridge #ff0000;
+    display: inline-block;
+    padding-right: 1em;
+}
+
+p.p_product_details_value {
+    font: 200 1.5em/2 'Lucida Grande', sans-serif;
+    display: inline-block;
+}
+
+div#product_info {
+
+}
+
+#product_photo {
+    border: 1px dotted black;
+}
+
+/* ----------------------- */
+
+/* Header formatting */
 
 h1 {
     font: 600 2em/2 'Raleway', sans-serif;
@@ -296,6 +320,51 @@ h1 {
     -moz-box-shadow: 0 4px 4px -3px #000000;
     box-shadow: 0 4px 4px -3px #000000;
 
+}
+
+h2 {
+    font: 400 1.5em/2 'Raleway', sans-serif;
+    color: rgba(.8, .3, 0, 1);
+    text-align: center;
+    text-transform: uppercase;
+    border-bottom: 4px solid orange;
+    padding: 1em;
+    position: relative;
+    margin: 0 auto;
+}
+
+h2:before {
+    background: none;
+    border-bottom: 4px solid orange;
+    content: "";
+    display: block;
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    bottom: 4px;
+    pointer-events: none;
+}
+
+h2.error {
+    color: red;
+    border-bottom: 4px solid orange;
+    padding: 1em;
+    position: relative;
+    margin: 0 auto;
+}
+
+h2.error:before {
+    background: none;
+    border-bottom: 4px solid orange;
+    content: "";
+    display: block;
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    bottom: 4px;
+    pointer-events: none;
 }
 
 /* --------------------- */

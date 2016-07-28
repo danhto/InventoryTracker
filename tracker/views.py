@@ -251,7 +251,7 @@ def new_order(request):
         if skits_in_order == 0 and leftover_in_inventory == 0:
             break
 
-    if skits_in_order != 0 and leftover_in_inventory != 0:
+    if skits_in_order != 0 and leftover_in_order != 0:
         response_message = 'Insufficient inventory to place order!'
         return render(request, 'tracker/place_order.html', {'product_list': Product.objects.all(), 'response': response_message})
     else:

@@ -38,13 +38,13 @@
     </li>
 </ul>
 
-<h1>New Order</h1>
-
 {% if response %}
-<h1 class="error">
+<h2 class="error">
     {{ response }}
-</h1>
+</h2>
 {% endif %}
+
+<h1>New Order</h1>
 
 <form action="{% url 'tracker:new_order' %}" method="post">
     {% csrf_token %}
