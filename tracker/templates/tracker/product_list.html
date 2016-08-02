@@ -1,0 +1,96 @@
+{% load staticfiles %}
+<link rel="stylesheet" href="{% static 'tracker/css/style.css' %}">
+    
+<ul id="menu-bar">
+    <li>
+        <a href="{% url 'tracker:index' %}">
+            Inventory
+        </a>
+        <ul class="second-level-menu">
+            <li>
+                <a href="{% url 'tracker:add_inventory' %}">
+                    New Inventory
+                </a>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <a href="{% url 'tracker:view_orders' %}">
+            Orders
+        </a>
+        <ul class="second-level-menu">
+            <li>
+                <a href="{% url 'tracker:place_order' %}">
+                    New Order
+                </a>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <a href="{% url 'tracker:view_products' %}">
+            Products
+        </a>
+        <ul class="second-level-menu">
+            <li>
+                <a href="{% url 'tracker:add_product' %}">
+                    New Product
+                </a>
+            </li>
+        </ul>
+    </li>
+    <li>
+        <a href="{% url 'tracker:log_out' %}">
+            Logout
+        </a>
+    </li>
+</ul>
+
+<h1>Existing Products</h1>
+
+{% if product_list %}
+<form action="{% url 'tracker:add_product' %}" method="POST">
+    {% csrf_token %}
+    <select name="filtcategory" id="filtcategory">
+        <option value="" >All</option>
+        {% for key, value in categories.items %}
+        {% if filter == key %}
+        <option value="{{ key }}" selected>{{ value }}</option>
+        {% else %}
+        <option value="{{ key }}" >{{ value }}</option>
+        {% endif %}
+        {% endfor %}
+    </select>
+    <input type="submit" value="Filter" />
+</form>
+
+<table class="product_table">
+    <tr>
+        <th>Product Name</th>
+        <th>Product Lot Number</th>
+        <th class="delete_button"></th>
+    </tr>
+    
+    {% for product in product_list %}
+    <tr class="product_row">
+        <td class="product_details">
+            <a href="{% url 'tracker:product_details' product.sm_lot_number %}">
+                {{ product.product_name }}
+            </a>
+        </td>
+        <td class="product_details">
+            <a href="{% url 'tracker:product_details' product.sm_lot_number %}">
+                {{ product.sm_lot_number }}
+            </a>
+        </td>
+        <td class="delete_button">
+            <form action="{% url 'tracker:delete_product' product.sm_lot_number %}" method="POST">
+                {% csrf_token %}
+                <button class="table_delete_button" type="submit">Delete</button>
+            </form>
+        </td>
+    <tr>
+    {% endfor %}
+</table>
+{% else %}
+<h2>There are no products currently in the system.</h2>
+{% endif %}

@@ -47,10 +47,10 @@ def getCategories():
     categories = {'dex':'Pressed Dextose', 'gum':'Bubble Gum', 'psg':'Panned Sugar', 'jaw':'Jawbreaker'}
     return categories
 
-# Add product calls the add_product.html view
+# View product calls the product_list.html view
 @login_required
 @permission_required('tracker.add_product', raise_exception=True)
-def add_product(request):
+def view_products(request):
     categories = getCategories()
     products = Product.objects.all()
     filter = ''
@@ -59,7 +59,16 @@ def add_product(request):
         filter = str(request.POST['filtcategory'])
         if filter != '':
             products = products.filter(category=filter)
-    return render(request, 'tracker/add_product.html', {'product_list': products, 'categories': categories, 'filter': filter,})
+    return render(request, 'tracker/product_list.html', {'product_list': products, 'categories': categories, 'filter': filter,})
+
+
+# Add product calls the add_product.html view
+@login_required
+@permission_required('tracker.add_product', raise_exception=True)
+def add_product(request):
+    categories = getCategories()
+    products = Product.objects.all()
+    return render(request, 'tracker/add_product.html', {'product_list': products, 'categories': categories,})
 
 # Creates and store product based on values entered into the new_product form
 @login_required
@@ -75,11 +84,19 @@ def new_product(request):
     categories = getCategories();
     # Proceed with product creation only if both fields are not empty
     if product_name.strip() != '' and sm_lot_number.strip() != '' and weight.strip() != '' and pieces.strip() != '':
+        # Check if product with specified lot number already exists
+        try:
+            product = Product.objects.get(sm_lot_number=sm_lot_number)
+        except Product.DoesNotExist:
+            product = None
+        if product != None:
+            return render(request, 'tracker/add_product.html', {'product_list': Product.objects.all(), 'categories': categories, 'error_message': "Product with lot number " + sm_lot_number + " already exists. Please choose a different lot number.",})
         product = Product(product_name=product_name, sm_lot_number=sm_lot_number, weight=weight, pieces=pieces, category=category, popular=popular)
         product.save()
         product.photo.save(img.name, img)
     else:
         return render(request, 'tracker/add_product.html', {'product_list': Product.objects.all(), 'categories': categories, 'error_message': "Product name and lot number cannot be empty.",})
+    messages.success(request, "Product successfully created.")
     return HttpResponseRedirect(reverse('tracker:add_product', args=()))
 
 @login_required
@@ -91,8 +108,7 @@ def product_details(request, sm_lot_number):
 # Removes product from database
 @login_required
 @permission_required('tracker.delete_product', raise_exception=True)
-def delete_product(request):
-    sm_lot_number = request.POST['sm_lot_number']
+def delete_product(request, sm_lot_number):
     product = Product.objects.get(sm_lot_number=sm_lot_number)
     inventory_list = Inventory.objects.filter(product=product)
     if (len(inventory_list) > 0):

@@ -27,9 +27,16 @@
         </ul>
     </li>
     <li>
-        <a href="{% url 'tracker:add_product' %}">
+        <a href="{% url 'tracker:view_products' %}">
             Products
         </a>
+        <ul class="second-level-menu">
+            <li>
+                <a href="{% url 'tracker:add_product' %}">
+                    New Product
+                </a>
+            </li>
+        </ul>
     </li>
     <li>
         <a href="{% url 'tracker:log_out' %}">

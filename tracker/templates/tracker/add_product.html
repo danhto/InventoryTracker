@@ -27,9 +27,16 @@
         </ul>
     </li>
     <li>
-        <a href="{% url 'tracker:add_product' %}">
+        <a href="{% url 'tracker:view_products' %}">
             Products
         </a>
+        <ul class="second-level-menu">
+            <li>
+                <a href="{% url 'tracker:add_product' %}">
+                    New Product
+                </a>
+            </li>
+        </ul>
     </li>
     <li>
         <a href="{% url 'tracker:log_out' %}">
@@ -39,6 +46,13 @@
 </ul>
 
 {% if error_message %}<h2 class="error">{{ error_message }}</h2>{% endif %}
+{% if messages %}
+<h2>
+    {% for message in messages %}
+        {{ message }}
+    {% endfor %}
+</h2>
+{% endif %}
 
 <h1>New Product</h1>
 
@@ -64,38 +78,11 @@
     </select><br /><br />
     
     <label for="popular" class="form">Popular Product:</label>
-    <input type="checkbox" name="popular" id="popular" value="Yes" /><br />
+    <input type="checkbox" name="popular" id="popular" value="Yes" /><br /><br />
 
     <label for="photo" class="form">Product Photo:</label>
-    <input type="file" name="photo" id="photo" accept="image/gif, image/jpeg, image/png" /><br />
+    <input type="file" name="photo" id="photo" accept="image/gif, image/jpeg, image/png" /><br /><br />
 
     <input type="submit" value="Add Product" />
 </form>
 
-<h1>Existing Products</h1>
-
-<form action="{% url 'tracker:add_product' %}" method="POST">
-    {% csrf_token %}
-    <select name="filtcategory" id="filtcategory">
-        <option value="" >All</option>
-        {% for key, value in categories.items %}
-            {% if filter == key %}
-                <option value="{{ key }}" selected>{{ value }}</option>
-                {% else %}
-                <option value="{{ key }}" >{{ value }}</option>
-            {% endif %}
-        {% endfor %}
-    </select>
-    <input type="submit" value="Filter" />
-</form>
-
-{% for product in product_list %}
-    <form action="{% url 'tracker:delete_product' %}" method="POST">
-    {% csrf_token %}
-        <a href="{% url 'tracker:product_details' product.sm_lot_number %}">
-            <input type="text" name="product_name" id="product_name" value="{{ product.product_name }}" readonly>
-        </a>
-        <input type="text" name="sm_lot_number" id="sm_lot_number" value="{{ product.sm_lot_number }}" readonly>
-        <input type="submit" value="Remove Product" />
-    </form>
-{% endfor %}

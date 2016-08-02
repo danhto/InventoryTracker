@@ -9,14 +9,16 @@ urlpatterns = [
                
                # ex: /tracker/gum%20ball/product_inventory
                url(r'^(?P<product_name>[\w\s]+)/product_inventory/$', views.product_inventory, name='product_inventory'),
-               # ex: /tracker/add_product
+               # ex: /tracker/view_products lists current products
+               url(r'^view_products/$', views.view_products, name='view_products'),
+               # ex: /tracker/add_product brings up add new product form view
                url(r'^add_product/$', views.add_product, name='add_product'),
                # ex: /tracker/new_product accessible only through form submission from add_product.html
                url(r'^new_product/$', views.new_product, name='new_product'),
                # ex: /tracker/product_details/104 add product form, displays all details about existing products
                url(r'^product_details/(?P<sm_lot_number>\d+)$', views.product_details, name='product_details'),
                # ex: /tracker/delete_product accessible only through form submission from add_product.html
-               url(r'^delete_product/$', views.delete_product, name='delete_product'),
+               url(r'^delete_product/(?P<sm_lot_number>\d+)$', views.delete_product, name='delete_product'),
                
                # ex: /tracker/add_inventory
                url(r'^add_inventory/$', views.add_inventory, name='add_inventory'),
