@@ -1,55 +1,58 @@
 {% load staticfiles %}
 <link rel="stylesheet" href="{% static 'tracker/css/style.css' %}">
 
-<ul id="menu-bar">
-    <li>
-        <a href="{% url 'tracker:index' %}">
-            Inventory
-        </a>
-        <ul class="second-level-menu">
-            <li>
-                <a href="{% url 'tracker:add_inventory' %}">
-                    New Inventory
-                </a>
-            </li>
-        </ul>
-    </li>
-    <li>
-        <a href="{% url 'tracker:view_orders' %}">
-            Orders
-        </a>
-        <ul class="second-level-menu">
-            <li>
-                <a href="{% url 'tracker:place_order' %}">
-                    New Order
-                </a>
-            </li>
-        </ul>
-    </li>
-    <li>
-        <a href="{% url 'tracker:view_products' %}">
-            Products
-        </a>
-        <ul class="second-level-menu">
-            <li>
-                <a href="{% url 'tracker:add_product' %}">
-                    New Product
-                </a>
-            </li>
-        </ul>
-    </li>
-    <li>
-        <a href="{% url 'tracker:log_out' %}">
-            Logout
-        </a>
-    </li>
-</ul>
+<head>
+    <ul id="menu-bar">
+        <li>
+            <a href="{% url 'tracker:index' %}">
+                Inventory
+            </a>
+            <ul class="second-level-menu">
+                <li>
+                    <a href="{% url 'tracker:add_inventory' %}">
+                        New Inventory
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <a href="{% url 'tracker:view_orders' %}">
+                Orders
+            </a>
+            <ul class="second-level-menu">
+                <li>
+                    <a href="{% url 'tracker:place_order' %}">
+                        New Order
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <a href="{% url 'tracker:view_products' %}">
+                Products
+            </a>
+            <ul class="second-level-menu">
+                <li>
+                    <a href="{% url 'tracker:add_product' %}">
+                        New Product
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <a href="{% url 'tracker:log_out' %}">
+                Logout
+            </a>
+        </li>
+    </ul>
+</head>
 
-<h2> Access Denied </h2>
+<body>
+    <h2> Access Denied </h2>
 
-<p>
-    You do not have sufficient permissions to access this feature.
-    <br/><br/>
-    Please contact your administrator to obtain the necessary permissions or log into an appropriate account.
-</p>
-
+    <p>
+        You do not have sufficient permissions to access this feature.
+        <br/><br/>
+        Please contact your administrator to obtain the necessary permissions or log into an appropriate account.
+    </p>
+</body>

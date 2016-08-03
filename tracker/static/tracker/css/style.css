@@ -130,6 +130,8 @@
 }
 #menu-bar {
     display: inline-block;
+    position: fixed;
+    top: 0px;
 }
 html[xmlns] #menu-bar {
     display: block;
@@ -326,8 +328,8 @@ button.table_delete_button {
 #product_photo {
     display: block;
     margin: 10% 40%;
-    width: 300px;
-    height: 300px;
+    width: 500px;
+    height: 400px;
 }
 
 /* test element */
@@ -404,6 +406,7 @@ h2 {
     border-bottom: 4px solid orange;
     padding: 1em;
     position: relative;
+    width: 95%;
     margin: 0 auto;
 }
 
@@ -439,6 +442,14 @@ h2.error:before {
     right: 4px;
     bottom: 4px;
     pointer-events: none;
+}
+
+/* --------------------- */
+
+/* Page formatting */
+
+body {
+    padding-top: 50px;
 }
 
 /* --------------------- */

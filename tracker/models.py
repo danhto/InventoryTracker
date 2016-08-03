@@ -26,7 +26,7 @@ class Product(models.Model):
     def get_pounds(self):
         return "{0:.2f}".format(Product.KG_TO_LBS_CONVERSION * float(self.weight))
     def __str__(self):
-        return self.product_name + " - " + self.sm_lot_number
+        return self.product_name
     # compares two product objects for equality based on product_name and sm_lot_number
     def __cmp__(self, other):
         return str(self.product_name) == str(other.product_name) and str(self.sm_lot_number) == str(other.sm_lot_number)

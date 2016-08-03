@@ -1,52 +1,55 @@
 {% load staticfiles %}
 <link rel="stylesheet" href="{% static 'tracker/css/style.css' %}">
 
-<ul id="menu-bar">
-    <li>
-        <a href="{% url 'tracker:index' %}">
-            Inventory
-        </a>
-        <ul class="second-level-menu">
-            <li>
-                <a href="{% url 'tracker:add_inventory' %}">
-                    New Inventory
-                </a>
-            </li>
-        </ul>
-    </li>
-    <li>
-        <a href="{% url 'tracker:view_orders' %}">
-            Orders
-        </a>
-        <ul class="second-level-menu">
-            <li>
-                <a href="{% url 'tracker:place_order' %}">
-                    New Order
-                </a>
-            </li>
-        </ul>
-    </li>
-    <li>
-        <a href="{% url 'tracker:view_products' %}">
-            Products
-        </a>
-        <ul class="second-level-menu">
-            <li>
-                <a href="{% url 'tracker:add_product' %}">
-                    New Product
-                </a>
-            </li>
-        </ul>
-    </li>
-    <li>
-        <a href="{% url 'tracker:log_out' %}">
-            Logout
-        </a>
-    </li>
-</ul>
+<head>
+    <ul id="menu-bar">
+        <li>
+            <a href="{% url 'tracker:index' %}">
+                Inventory
+            </a>
+            <ul class="second-level-menu">
+                <li>
+                    <a href="{% url 'tracker:add_inventory' %}">
+                        New Inventory
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <a href="{% url 'tracker:view_orders' %}">
+                Orders
+            </a>
+            <ul class="second-level-menu">
+                <li>
+                    <a href="{% url 'tracker:place_order' %}">
+                        New Order
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <a href="{% url 'tracker:view_products' %}">
+                Products
+            </a>
+            <ul class="second-level-menu">
+                <li>
+                    <a href="{% url 'tracker:add_product' %}">
+                        New Product
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <a href="{% url 'tracker:log_out' %}">
+                Logout
+            </a>
+        </li>
+    </ul>
+</head>
 
+<body>
 {% if error_message %}<h2 class="error">{{ error_message }}</h2>{% endif %}
-{% if added %}<h2>Inventory successfully added</h2>{% endif %}
+{% if added %}<h2>Inventory successfully added.</h2>{% endif %}
 
 <h1>New Inventory</h1>
 
@@ -92,3 +95,5 @@
     
     <input type="submit" value="Add Inventory" />
 </form>
+
+</body>

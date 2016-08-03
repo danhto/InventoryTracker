@@ -21,7 +21,7 @@ def index(request):
     for inventory in Inventory.objects.all():
         if not inventory.no_stock():
             inventory_list.append(inventory)
-    inventory_list = sorted(inventory_list, key=lambda inventory: order_by)
+    inventory_list = sorted(inventory_list, key=lambda inventory: getattr(inventory, order_by))
     context = {'inventory_list': inventory_list}
     return render(request, 'tracker/index.html', context)
 
@@ -41,11 +41,6 @@ def product_inventory(request, product_name):
     except Inventory.DoesNotExist:
         raise Http404("No inventory in system")
     return render(request, 'tracker/product_inventory.html', {'inventory_list': inventory_list, 'product_name': p_name})
-
-# Get an array of all existing categories
-def getCategories():
-    categories = {'dex':'Pressed Dextose', 'gum':'Bubble Gum', 'psg':'Panned Sugar', 'jaw':'Jawbreaker'}
-    return categories
 
 # View product calls the product_list.html view
 @login_required
@@ -231,18 +226,22 @@ def new_order(request):
             # inventory has enough to fullfill leftover requirements of order
             if leftover_in_order <= leftover_in_inventory:
                 quantity_taken = skits_in_order*MAX_QUANTITY_ON_SKIT + leftover_in_order
-                leftover_in_order = 0
-                pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
-                pending_stock.save()
-                stock = stock + str(pending_stock.id) + ", "
+                # checks to make sure stock is not held for another order
+                if checkPendingStock(inventory, quantity_taken):
+                    leftover_in_order = 0
+                    pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
+                    pending_stock.save()
+                    stock = stock + str(pending_stock.id) + ", "
+                    skits_in_order = 0
             # inventory does not have enough to fullfill leftover requirements of order
             else:
                 quantity_taken = skits_in_order*MAX_QUANTITY_ON_SKIT + leftover_in_inventory
-                leftover_in_order = leftover_in_order - leftover_in_inventory
-                pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
-                pending_stock.save()
-                stock = stock + str(pending_stock.id) + ", "
-            skits_in_order = 0
+                if checkPendingStock(inventory, quantity_taken):
+                    leftover_in_order = leftover_in_order - leftover_in_inventory
+                    pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
+                    pending_stock.save()
+                    stock = stock + str(pending_stock.id) + ", "
+                    skits_in_order = 0
         # inventory does not have enough to fullfill skit requirements of order
         else:
             # checks if skit amount of inventory is 0
@@ -252,22 +251,24 @@ def new_order(request):
                 skits_taken = 0
             if leftover_in_order <= leftover_in_inventory:
                 quantity_taken = skits_taken + leftover_in_order
-                leftover_in_order = 0
-                pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
-                pending_stock.save()
-                stock = stock + str(pending_stock.id) + ", "
-            else:
-                if leftover_in_inventory != 0:
-                    quantity_taken = skits_taken + leftover_in_inventory
-                    leftover_in_order = leftover_in_order - leftover_in_inventory
+                if checkPendingStock(inventory, quantity_taken):
+                    leftover_in_order = 0
                     pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
                     pending_stock.save()
                     stock = stock + str(pending_stock.id) + ", "
+            else:
+                if checkPendingStock(inventory, quantity_taken):
+                    if leftover_in_inventory != 0:
+                        quantity_taken = skits_taken + leftover_in_inventory
+                        leftover_in_order = leftover_in_order - leftover_in_inventory
+                        pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
+                        pending_stock.save()
+                        stock = stock + str(pending_stock.id) + ", "
         # if order quantity has been satisfied stop scanning inventory for stock
-        if skits_in_order == 0 and leftover_in_inventory == 0:
+        if skits_in_order == 0 and leftover_in_order == 0:
             break
 
-    if skits_in_order != 0 and leftover_in_order != 0:
+    if skits_in_order != 0 or leftover_in_order != 0:
         response_message = 'Insufficient inventory to place order!'
         return render(request, 'tracker/place_order.html', {'product_list': Product.objects.all(), 'response': response_message})
     else:
@@ -325,3 +326,25 @@ def delete_order(request, order_number):
 # custom view for permission denied exception
 def custom_permission_denied_view(request):
     return render(request, 'tracker/403.html', {}, status=403)
+
+### METHODS ###
+
+# Get an array of all existing categories
+def getCategories():
+    categories = {'dex':'Pressed Dextose', 'gum':'Bubble Gum', 'psg':'Panned Sugar', 'jaw':'Jawbreaker'}
+    return categories
+
+# Check pending stock to ensure there is room to place order
+def checkPendingStock(inventory, order_quantity):
+    quantity = int(inventory.quantity)
+    for order in Pending_Stock.objects.all():
+        # No need to check for conflicts if order has been approved
+        if order.get_status_display() != 'Approved':
+            if order.inventory.lot_number == inventory.lot_number:
+                quantity = quantity - order.quantity
+    # if inventory has sufficient quantities then order can proceed
+    if quantity >= order_quantity:
+        return True
+    else:
+        return False
+

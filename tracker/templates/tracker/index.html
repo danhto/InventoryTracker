@@ -2,49 +2,53 @@
 {% load staticfiles %}
 <link rel="stylesheet" href="{% static 'tracker/css/style.css' %}">
    
-<ul id="menu-bar">
-   <li>
-       <a href="{% url 'tracker:index' %}">
-           Inventory
-       </a>
-       <ul class="second-level-menu">
-           <li>
-               <a href="{% url 'tracker:add_inventory' %}">
-                   New Inventory
-               </a>
-           </li>
-       </ul>
-   </li>
-   <li>
-       <a href="{% url 'tracker:view_orders' %}">
-           Orders
-       </a>
-       <ul class="second-level-menu">
-           <li>
-               <a href="{% url 'tracker:place_order' %}">
-                   New Order
-               </a>
-           </li>
-       </ul>
-   </li>
-   <li>
-       <a href="{% url 'tracker:view_products' %}">
-           Products
-       </a>
-       <ul class="second-level-menu">
-           <li>
-               <a href="{% url 'tracker:add_product' %}">
-                   New Product
-               </a>
-           </li>
-       </ul>
-   </li>
-   <li>
-       <a href="{% url 'tracker:log_out' %}">
-           Logout
-       </a>
-   </li>
-</ul>
+<head>
+   <ul id="menu-bar">
+       <li>
+           <a href="{% url 'tracker:index' %}">
+               Inventory
+           </a>
+           <ul class="second-level-menu">
+               <li>
+                   <a href="{% url 'tracker:add_inventory' %}">
+                       New Inventory
+                   </a>
+               </li>
+           </ul>
+       </li>
+       <li>
+           <a href="{% url 'tracker:view_orders' %}">
+               Orders
+           </a>
+           <ul class="second-level-menu">
+               <li>
+                   <a href="{% url 'tracker:place_order' %}">
+                       New Order
+                   </a>
+               </li>
+           </ul>
+       </li>
+       <li>
+           <a href="{% url 'tracker:view_products' %}">
+               Products
+           </a>
+           <ul class="second-level-menu">
+               <li>
+                   <a href="{% url 'tracker:add_product' %}">
+                       New Product
+                   </a>
+               </li>
+           </ul>
+       </li>
+       <li>
+           <a href="{% url 'tracker:log_out' %}">
+               Logout
+           </a>
+       </li>
+   </ul>
+</head>
+
+<body>
 
 
 <h1>Current Inventory</h1>
@@ -59,7 +63,7 @@
         <th><a href="?order_by=location">Location</a></th>
         <th><a href="?order_by=label">Label</a></th>
         <th><a href="?order_by=standard">Standard</a></th>
-        <th><a href="?order_by=dessicate">Dessicant</a></th>
+        <th><a href="?order_by=dessicate">Dessicate</a></th>
         <th>Notes</th>
     </tr>
     {% for inventory in inventory_list %}
@@ -87,3 +91,5 @@
 {% else %}
 <h2>No inventory in system.</h2>
 {% endif %}
+
+</body>
