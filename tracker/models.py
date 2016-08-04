@@ -86,10 +86,13 @@ class Order(models.Model):
             return True
         else:
             return False
-    # alter the specified order from pending to approved
+    # alter the specified order from pending to approved and for associated pending stock objects
     def update_status(self):
         if self.status == Order.PENDING:
             self.status = Order.APPROVED
+            for pstock in Pending_Stock.objects.all():
+                if pstock.order_number == self.order_number:
+                    pstock.status = self.status
             return True
         else:
             return False
@@ -115,5 +118,6 @@ class Pending_Stock(models.Model):
     order_number = models.IntegerField(default=1)
     inventory = models.ForeignKey(Inventory, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=0)
+    status = models.CharField(max_length=10, default='Pending')
     def __str__(self):
         return self.quantity + " from " + self.inventory.lot_number

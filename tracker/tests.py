@@ -32,11 +32,11 @@ def createProductB():
                    category=category,
                    popular=popular)
 
-def createInventory(product, lot):
+def createInventory(product, lot, in_qty):
     global add_date
     add_date = timezone.now()
     lot_number = '123' + lot
-    quantity = 100
+    quantity = in_qty
     location = 'warehouse'
     label = '0'
     standard = 'Yes'
@@ -53,11 +53,12 @@ def createInventory(product, lot):
 # Check pending stock to ensure there is room to place order
 def checkPendingStock(inventory, order_quantity):
     quantity = int(inventory.quantity)
-    for order in Pending_Stock.objects.all():
+    for p_stock in Pending_Stock.objects.all():
         # No need to check for conflicts if order has been approved
-        if order.get_status_display() != 'Approved':
-            if order.inventory.lot_number == inventory.lot_number:
-                quantity = quantity - order.quantity
+        order_number = p_stock.order_number
+        if p_stock.status != 'Approved':
+            if p_stock.inventory.lot_number == inventory.lot_number:
+                quantity = quantity - p_stock.quantity
     # if inventory has sufficient quantities then order can proceed
     if quantity >= order_quantity:
         return True
@@ -86,19 +87,24 @@ def createOrder(product, quantity):
     for inventory in inventory_list:
         skits_in_inventory = inventory.quantity/MAX_QUANTITY_ON_SKIT
         leftover_in_inventory = inventory.quantity%MAX_QUANTITY_ON_SKIT
+        
+        print ("Quantity ordered: "+str(quantity))
+        print ("Skits in inventory: "+str(skits_in_inventory))
+        print ("Leftover in inventory: "+str(leftover_in_inventory))
+        print ("Skits in order: "+str(skits_in_order))
+        print ("Leftover in order: "+str(leftover_in_order))
+
         # check if inventory has enough stock to fill as many skits as required by order
         # inventory has enough to fullfill skit requirements of order
         if skits_in_order <= skits_in_inventory:
             if skits_in_order < skits_in_inventory:
-                print ("ln 92 TRUE")
                 leftover_in_inventory = leftover_in_inventory + (skits_in_inventory - skits_in_order)*MAX_QUANTITY_ON_SKIT
             # inventory has enough to fullfill leftover requirements of order
             if leftover_in_order <= leftover_in_inventory:
-                print ("ln 96 TRUE")
                 quantity_taken = skits_in_order*MAX_QUANTITY_ON_SKIT + leftover_in_order
                 # checks to make sure stock is not held for another order
                 if checkPendingStock(inventory, quantity_taken):
-                    print ("ln 100 TRUE")
+#                    print ("ln 100 TRUE")
                     leftover_in_order = 0
                     pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
                     pending_stock.save()
@@ -117,16 +123,17 @@ def createOrder(product, quantity):
         else:
             # checks if skit amount of inventory is 0
             if skits_in_inventory != 0:
-                skits_taken = skits_in_inventory*MAX_QUANTITY_ON_SKIT
+                skits_taken = skits_in_inventory
             else:
                 skits_taken = 0
             if leftover_in_order <= leftover_in_inventory:
-                quantity_taken = skits_taken + leftover_in_order
+                quantity_taken = skits_taken*MAX_QUANTITY_ON_SKIT + leftover_in_order
                 if checkPendingStock(inventory, quantity_taken):
                     leftover_in_order = 0
                     pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
                     pending_stock.save()
                     stock = stock + str(pending_stock.id) + ", "
+                    skits_in_order = skits_in_order - skits_taken
             else:
                 if checkPendingStock(inventory, quantity_taken):
                     if leftover_in_inventory != 0:
@@ -135,12 +142,10 @@ def createOrder(product, quantity):
                         pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
                         pending_stock.save()
                         stock = stock + str(pending_stock.id) + ", "
+                        skits_in_order = skits_in_order - skits_taken
         # if order quantity has been satisfied stop scanning inventory for stock
         if skits_in_order == 0 and leftover_in_order == 0:
             break
-    
-    print ("Skits: "+str(skits_in_order))
-    print ("Left: "+str(leftover_in_order))
 
     if skits_in_order != 0 or leftover_in_order != 0:
         return None
@@ -162,7 +167,7 @@ class ProductMethodTests(TestCase):
 class InventoryMethodTests(TestCase):
 
     def test_inventory_creation(self):
-        inventory = createInventory(createProductA(), 'AA')
+        inventory = createInventory(createProductA(), 'AA', 100)
         self.assertEqual(inventory.__str__(), "Test - 123AA -quantity: 100 -location: warehouse")
         self.assertEqual(inventory.add_date, add_date)
         self.assertEqual(inventory.get_label_display(), 'No Label')
@@ -175,7 +180,9 @@ class OrderMethodTests(TestCase):
     def test_order_creation(self):
         print("Start test_order_creation")
         product = createProductA()
-        inventory = createInventory(product, 'AA')
+        product.save()
+        inventory = createInventory(product, 'AA', 100)
+        inventory.save()
         
         self.assertEqual(inventory.quantity, 100)
         
@@ -187,19 +194,20 @@ class OrderMethodTests(TestCase):
         order.update_status()
         self.assertEqual(order.is_approved(), True)
         print("End test_order_creation")
+
 class ObjectCreationTests(TestCase):
 
     # Check created objects exist in database
     def test_objects_successfully_added(self):
-
+        print("Start test_objects_successfully_added")
         # Create product Test and Test2
         productA = createProductA()
         productB = createProductB()
         productA.save()
         productB.save()
         # Create inventory using products Test and Test2
-        inventoryA = createInventory(productA, 'AA')
-        inventoryB = createInventory(productB, 'BB')
+        inventoryA = createInventory(productA, 'AA', 100)
+        inventoryB = createInventory(productB, 'BB', 100)
         inventoryA.save()
         inventoryB.save()
         # Create order with productA
@@ -212,17 +220,19 @@ class ObjectCreationTests(TestCase):
         self.assertEqual(Order.objects.get(pk=1).get_status_display(), 'Pending')
         self.assertEqual(Pending_Stock.objects.count(), 1)
         self.assertEqual(Pending_Stock.objects.get(pk=1).quantity, 100)
-
+        print("End test_objects_successfully_added")
+    
     def test_order_insufficient_quantity(self):
         
+        print("Start test_order_insufficient_quantity")
         # Create product Test and Test2
         productA = createProductA()
         productB = createProductB()
         productA.save()
         productB.save()
         # Create inventory using products Test and Test2
-        inventoryA = createInventory(productA, 'AA')
-        inventoryB = createInventory(productB, 'BB')
+        inventoryA = createInventory(productA, 'AA', 100)
+        inventoryB = createInventory(productB, 'BB', 100)
         inventoryA.save()
         inventoryB.save()
         # Create order with productA
@@ -233,4 +243,26 @@ class ObjectCreationTests(TestCase):
         self.assertEqual(Product.objects.count(), 2)
         self.assertEqual(Inventory.objects.count(), 2)
         self.assertEqual(Order.objects.count(), 0)
+        print("End test_order_insufficient_quantity")
 
+    def test_multi_inventory_order(self):
+        
+        print("Start test_multi_inventory_order")
+        # Create product Test and Test2
+        productA = createProductA()
+        productB = createProductB()
+        productA.save()
+        productB.save()
+        # Create inventory using products Test and Test2
+        inventoryA = createInventory(productA, 'AA', 100)
+        inventoryA2 = createInventory(productA, 'AA2', 100)
+        inventoryB = createInventory(productB, 'BB', 100)
+        inventoryA.save()
+        inventoryA2.save()
+        inventoryB.save()
+        # Create order with productA
+        orderA = createOrder(productA, 150)
+
+        self.assertEqual(Pending_Stock.objects.count(), 2)
+        self.assertEqual(orderA.inventory, 2, "123AA, 123AA2")
+        print("End test_multi_inventory_order")
