@@ -104,7 +104,7 @@ def createOrder(product, quantity):
                 quantity_taken = skits_in_order*MAX_QUANTITY_ON_SKIT + leftover_in_order
                 # checks to make sure stock is not held for another order
                 if checkPendingStock(inventory, quantity_taken):
-#                    print ("ln 100 TRUE")
+                    #print ("ln 100 TRUE")
                     leftover_in_order = 0
                     pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
                     pending_stock.save()
@@ -135,14 +135,15 @@ def createOrder(product, quantity):
                     stock = stock + str(pending_stock.id) + ", "
                     skits_in_order = skits_in_order - skits_taken
             else:
-                if checkPendingStock(inventory, quantity_taken):
-                    if leftover_in_inventory != 0:
-                        quantity_taken = skits_taken + leftover_in_inventory
+                if leftover_in_inventory != 0:
+                    quantity_taken = skits_taken*MAX_QUANTITY_ON_SKIT + leftover_in_inventory
+                    if checkPendingStock(inventory, quantity_taken):
                         leftover_in_order = leftover_in_order - leftover_in_inventory
                         pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
                         pending_stock.save()
                         stock = stock + str(pending_stock.id) + ", "
                         skits_in_order = skits_in_order - skits_taken
+                
         # if order quantity has been satisfied stop scanning inventory for stock
         if skits_in_order == 0 and leftover_in_order == 0:
             break
@@ -248,6 +249,12 @@ class ObjectCreationTests(TestCase):
     def test_multi_inventory_order(self):
         
         print("Start test_multi_inventory_order")
+        # Clear objects
+        Product.objects.all().delete()
+        Inventory.objects.all().delete()
+        Order.objects.all().delete()
+        Pending_Stock.objects.all().delete()
+        
         # Create product Test and Test2
         productA = createProductA()
         productB = createProductB()
@@ -262,7 +269,14 @@ class ObjectCreationTests(TestCase):
         inventoryB.save()
         # Create order with productA
         orderA = createOrder(productA, 150)
+        orderA.save()
 
         self.assertEqual(Pending_Stock.objects.count(), 2)
-        self.assertEqual(orderA.inventory, 2, "123AA, 123AA2")
+        self.assertEqual(orderA.stock, "1, 2, ")
+        
+        p_stock1 = Pending_Stock.objects.get(id=1)
+        p_stock2 = Pending_Stock.objects.get(id=2)
+        
+        self.assertEqual(p_stock1.quantity, 86)
+        self.assertEqual(p_stock2.quantity, 64)
         print("End test_multi_inventory_order")
