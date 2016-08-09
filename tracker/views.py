@@ -170,9 +170,13 @@ def update_inventory(request, counter):
     for inventory in Inventory.objects.all():
         if inventory.lot_number == lot_number:
             inv = inventory
-    inv.quantity = quantity
-    inv.save()
-    return render(request, 'tracker/product_inventory.html', {'inventory_list': inventory_list, 'product_name': product.product_name,})
+    if inv.quantity != int(quantity):
+        inv.quantity = quantity
+        inv.save()
+        response_message = "Quantity successfully updated for " + product.product_name + " in inventory " + lot_number + "."
+    else:
+        response_message = "Quantity set is the same as before, no change has been made. "
+    return render(request, 'tracker/product_inventory.html', {'inventory_list': inventory_list, 'product_name': product.product_name, 'response': response_message})
 
 # Opens product ordering webpage
 @login_required

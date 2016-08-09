@@ -48,11 +48,14 @@
 </head>
 
 <body>
+    
+{% if response %}
+<h2>{{ response }}</h2>
+{% endif %}
 
 <h1>All inventory for {{ product_name }}</h1>
 <table>
     <tr>
-        <th>Product</th>
         <th>Lot Number</th>
         <th>Quantity</th>
         <th>Location</th>
@@ -63,25 +66,29 @@
     </th>
     {% for inventory in inventory_list %}
     <tr>
-        <td>{{ inventory.product.product_name }}</td>
         <td>{{ inventory.lot_number }}</td>
-        <td>
+        <td class="update_quantity_cell" >
             <form action="{% url 'tracker:update_inventory' forloop.counter %}" method="post">
                 {% csrf_token %}
                 <input type="hidden" name="lot_number{{ forloop.counter }}" id="lot_number{{ forloop.counter }}" value="{{ inventory.lot_number }}" />
                 <input type="hidden" name="sm_lot_number{{ forloop.counter }}" id="sm_lot_number{{ forloop.counter }}" value="{{ inventory.product.sm_lot_number }}" />
                 <input type="text" name="quantity{{ forloop.counter }}" id="quantity{{ forloop.counter }}" value="{{ inventory.quantity }}" />
-                <input type="submit" value="Update" />
+                <button class="submit_button">Update</button>
             </form>
         </td>
         <td>{{ inventory.location }}</td>
         <td>{{ inventory.label }}</td>
         <td>{{ inventory.standard }}</td>
         <td>{{ inventory.dessicate }}</td>
-        <td>{{ inventory.popular }}</td>
         <td>{{ inventory.notes }}</td>
     </tr>
     {% endfor %}
 </table>
 
+<footer>
+    <p>Written by: Dan To, 2016</p>
+    <a href="www.github.com/danhto">
+        <img src="{% static "tracker/images/github.png" %}" />
+    </a>
+</footer>
 </body>

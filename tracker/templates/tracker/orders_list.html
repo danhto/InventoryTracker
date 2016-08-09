@@ -81,7 +81,9 @@
                 <td class="data">{{ order.order_number }}</td>
                 <td class="data">
                     <a href="{% url 'tracker:product_inventory' order.product.product_name.lower %}">
+                        <span>
                             {{ order.product.product_name }}
+                        </span>
                     </a>
                 </td>
                 <td class="data">{{ order.product.sm_lot_number }}</td>
@@ -101,7 +103,7 @@
                         <form action="{% url 'tracker:approve_order' order.order_number %}" method="post">
                             {% csrf_token %}
                             Pending
-                            <input id='approve_button' type="submit" value="Approve" />
+                            <button class="approve_button">Approve</button>
                         </form>
                     </td>
                 {% endif %}
@@ -121,4 +123,10 @@
     {% endif %}
 </div>
 
+<footer>
+    <p>Written by: Dan To, 2016</p>
+    <a href="www.github.com/danhto">
+        <img src="{% static "tracker/images/github.png" %}" />
+    </a>
+</footer>
 </body>
