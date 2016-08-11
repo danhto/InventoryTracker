@@ -465,6 +465,8 @@ table.logintable td {
     height: 75px;
     width: 250px;
     font: 400 1.2em/1 'Lucida Grande', sans-serif;
+    color: #FFFFFF;
+    text-shadow: 2px 1px #000000;
     padding: 0.1em 0.1em 0.1em 0.5em;
     background: url("../images/table_red_bg.jpg") no-repeat 0 0;
 }

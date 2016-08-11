@@ -9,6 +9,7 @@ from django.contrib.auth import logout, login, authenticate
 from django.contrib.auth.views import logout_then_login
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseForbidden
+from django.core.mail import send_mail
 
 def log_out(request):
     return logout_then_login(request,login_url='/tracker/login')
@@ -367,3 +368,16 @@ def checkPendingStock(inventory, order_quantity):
     else:
         return False
 
+# Send mail
+def email_alerts(alert, content):
+    subject = ""
+    body = ""
+    if alert = 'stock':
+        subject = "Low stock"
+        body = "Stock for " + content + " is running low."
+    send_mail(
+              subject,
+              body,
+              'it@yfs.ca',
+              ['it@yfs.ca'],
+              fail_silently=False,)

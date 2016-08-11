@@ -52,7 +52,7 @@
 <h1>Existing Products</h1>
 
 {% if product_list %}
-<form action="{% url 'tracker:add_product' %}" method="POST">
+<form action="{% url 'tracker:view_products' %}" method="POST">
     {% csrf_token %}
     <select name="filtcategory" id="filtcategory">
         <option value="" >All</option>
