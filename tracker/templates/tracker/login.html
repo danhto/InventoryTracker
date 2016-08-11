@@ -3,22 +3,27 @@
 
 <body>
     
+    <h1>Inventory System</h1>
+    
     {% if form.errors %}
-    <p>Your username and password didn't match. Please try again.</p>
+    <h2 class="error">Your username and password didn't match. Please try again.</h2>
     {% endif %}
 
     {% if next %}
     {% if user.is_authenticated %}
-    <p>Your account doesn't have access to this page. To proceed,
-    please login with an account that has access.</p>
+    <h2 class="error">Your account doesn't have access to this page. To proceed,
+    please login with an account that has access.</h2>
     {% else %}
-    <p>Please login to see this page.</p>
+    <h2 class="error">Please login to see this page.</h2>
     {% endif %}
     {% endif %}
 
-    <form method="post" action="{% url 'login' %}">
+    <div class="spacer">
+    </div>
+
+    <table class="logintable">
+        <form method="post" action="{% url 'login' %}">
         {% csrf_token %}
-        <table>
             <tr>
                 <td>{{ form.username.label_tag }}</td>
                 <td>{{ form.username }}</td>
@@ -27,13 +32,23 @@
                 <td>{{ form.password.label_tag }}</td>
                 <td>{{ form.password }}</td>
             </tr>
-        </table>
-        
-        <input type="submit" value="Login" />
-        <input type="hidden" name="next" value="{{ next }}" />
-    </form>
+            <tr>
+                <td class="submit_row" colspan=2>
+                    <button class="add_button">Login</button>
+                    <input type="hidden" name="next" value="{{ next }}" />
+                </td>
+            <tr>
+        </form>
+        <tr>
+            <td class="options_row" colspan=2>
+                <a href="{% url 'admin:index' %}" class="add_button">Manage users</a>
+            </td>
+        </tr>
+    </table>
 
-
+    <div class="spacer">
+    </div>
+    
 <footer>
     <p>Written by: Dan To, 2016</p>
     <a href="www.github.com/danhto">
