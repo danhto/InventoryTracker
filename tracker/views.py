@@ -26,10 +26,12 @@ def index(request):
             # if inventory stock is critical send administrator an email alert and toggle alert switch
             if inventory.critical_stock() and inventory.alerts == 0:
                 inventory.alert_sent(False)
+                inventory.save()
                 email_alerts('stock', inventory.lot_number)
             # if inventory stock is no longer critical reset alert status
             if not inventory.critical_stock() and inventory.alerts == 1:
                 inventory.alert_sent(True)
+                inventory.save()
     inventory_list = sorted(inventory_list, key=lambda inventory: getattr(inventory, order_by))
     context = {'inventory_list': inventory_list}
     return render(request, 'tracker/index.html', context)

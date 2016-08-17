@@ -67,9 +67,9 @@ class Inventory(models.Model):
             return False
     # changes alert value to prevent repeated alert messages
     def alert_sent(self, reset):
-        self.alert = 1
+        self.alerts = 1
         if reset:
-            self.alert = 0
+            self.alerts = 0
 
 class Order(models.Model):
     PENDING = '0'
