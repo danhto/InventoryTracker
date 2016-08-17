@@ -20,8 +20,16 @@ def index(request):
     order_by = request.GET.get('order_by', 'add_date')
     inventory_list = []
     for inventory in Inventory.objects.all():
+        # do not include empty inventory in displayed list of current stock
         if not inventory.no_stock():
             inventory_list.append(inventory)
+            # if inventory stock is critical send administrator an email alert and toggle alert switch
+            if inventory.critical_stock() and inventory.alerts == 0:
+                inventory.alert_sent(False)
+                email_alerts('stock', inventory.lot_number)
+            # if inventory stock is no longer critical reset alert status
+            if not inventory.critical_stock() and inventory.alerts == 1:
+                inventory.alert_sent(True)
     inventory_list = sorted(inventory_list, key=lambda inventory: getattr(inventory, order_by))
     context = {'inventory_list': inventory_list}
     return render(request, 'tracker/index.html', context)
@@ -295,6 +303,7 @@ def new_order(request):
         order = Order(order_number=order_number, product=product, date=date, quantity=quantity, stock=stock, client=client, notes=notes)
         order.save()
         response_message = 'Order has been placed'
+        email_alerts('order', order.get_stock)  # send email alert to administrator about new order
         return render(request, 'tracker/place_order.html', {'product_list': Product.objects.all(), 'response': response_message})
 
 @login_required
@@ -372,12 +381,16 @@ def checkPendingStock(inventory, order_quantity):
 def email_alerts(alert, content):
     subject = ""
     body = ""
-    if alert = 'stock':
+    if alert == 'stock':
         subject = "Low stock"
         body = "Stock for " + content + " is running low."
+    else:
+        subject = "A new order has been placed"
+        body = "Order " + content + " requires your approval."
+
     send_mail(
               subject,
               body,
-              'it@yfs.ca',
+              'alert@inventorytracker.com',
               ['it@yfs.ca'],
               fail_silently=False,)

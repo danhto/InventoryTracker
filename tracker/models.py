@@ -48,6 +48,7 @@ class Inventory(models.Model):
     standard = models.CharField(max_length=3, default='Yes')
     dessicate = models.CharField(max_length=3, default='No')
     notes = models.CharField(max_length=200)
+    alerts = models.IntegerField(default=0)
     def __str__(self):
         return self.product.product_name + " - " + str(self.lot_number) + " -quantity: " + str(self.quantity) + " -location: " + self.location
     # checks if inventory is empty
@@ -64,6 +65,11 @@ class Inventory(models.Model):
             return True
         else:
             return False
+    # changes alert value to prevent repeated alert messages
+    def alert_sent(self, reset):
+        self.alert = 1
+        if reset:
+            self.alert = 0
 
 class Order(models.Model):
     PENDING = '0'

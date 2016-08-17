@@ -133,5 +133,13 @@ STATICFILES_DIRS = (
                     os.path.join(PROJECT_DIR, 'staticfiles'),
                     )
 
+# Email settings
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.sendgrid.net'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'inventorytracker'
+EMAIL_HOST_PASSWORD = '1nventorytracker'
+
 LOGIN_URL = '/tracker/login/'
 LOGIN_REDIRECT_URL = '/tracker/'
