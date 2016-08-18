@@ -42,4 +42,11 @@ urlpatterns = [
                url(r'^delete_order/(?P<order_number>\d+)$', views.delete_order, name='delete_order'),
                # ex: /view_orders renders orders_list.html and displays all current orders in system
                url(r'^approve_order/(?P<order_number>\d+)$', views.approve_order, name='approve_order'),
+               
+               # ex: /app_settings/ renders app_settings.html and displays editable settings for application
+               url(r'^app_settings/$', views.app_settings, name='app_settings'),
+               # ex: /delete_email removes email from list of app alert recipients
+               url(r'^delete_email/(?P<email_id>\d+)$', views.delete_email, name='delete_email'),
+               # ex: /add_email adds indicated email to list of app alert recipients
+               url(r'^add_email/$', views.add_email, name='add_email'),
                ]

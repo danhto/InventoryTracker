@@ -354,6 +354,19 @@ def delete_order(request, order_number):
     response = 'Order deleted'
     return render(request, 'tracker/orders_list.html', {'orders': Order.objects.all(), 'response': response})
 
+# Renders app_settings.html view
+def app_settings(request):
+    return render(request, 'tracker/app_settings.html', {'emails': Email.objects.all()})
+
+def add_email(request):
+    new_email = request.POST['new_email']
+    email = Email(email=new_email)
+    email.save()
+    return HttpResponseRedirect(reverse('tracker:app_settings', args=({'emails': Email.objects.all()})))
+
+def delete_email(request):
+    
+
 # custom view for permission denied exception
 def custom_permission_denied_view(request):
     return render(request, 'tracker/403.html', {}, status=403)

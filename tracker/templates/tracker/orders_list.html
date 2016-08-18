@@ -45,6 +45,11 @@
                 Logout
             </a>
         </li>
+        <li id="settings">
+            <a href="">
+                <div id="img_holder"></div>
+            </a>
+        </li>
     </ul>
 </head>
 
@@ -90,10 +95,12 @@
                 <td class="data">{{ order.date }}</td>
                 <td class="data">{{ order.quantity }}</td>
                 <td class="data">{{ order.client }}</td>
-                <td class="data">
-                {% for stock in order.get_stock %}
-                    {{ stock }} </br>
-                {% endfor %}
+                <td class="data_stock">
+                    <div class="stock_scroll_div">
+                    {% for stock in order.get_stock %}
+                        {{ stock }} </br>
+                    {% endfor %}
+                    </div>
                 </td>
                 <td class="data">{{ order.notes }}</td>
                 {% if order.is_approved %}

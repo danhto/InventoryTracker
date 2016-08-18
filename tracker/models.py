@@ -127,3 +127,6 @@ class Pending_Stock(models.Model):
     status = models.CharField(max_length=10, default='Pending')
     def __str__(self):
         return self.quantity + " from " + self.inventory.lot_number
+
+class Email(models.Model):
+    email = models.CharField(max_length=100, default='')

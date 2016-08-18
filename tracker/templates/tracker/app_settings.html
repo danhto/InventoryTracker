@@ -1,6 +1,6 @@
 {% load staticfiles %}
 <link rel="stylesheet" href="{% static 'tracker/css/style.css' %}">
-
+    
 <head>
     <ul id="menu-bar">
         <li>
@@ -54,36 +54,24 @@
 
 <body>
 
-{% if response %}
-<h2 class="error">
-    {{ response }}
-</h2>
-{% endif %}
+<h1>Settings</h1>
 
-<h1>New Order</h1>
-
-<form action="{% url 'tracker:new_order' %}" method="post">
+<form action="{% url 'tracker:delete_email' email %}" enctype="multipart/form-data" method="post">
     {% csrf_token %}
-    <label for="sm_lot_number" class="form">Product:</label>
-    <select name="sm_lot_number" id="sm_lot_number" required>
-        {% for product in product_list %}
-        <option value="{{ product.sm_lot_number }}">{{ product }}</option>
-        {% endfor %}
-    </select><br />
-    
-    <label for="quantity" class="form">Quantity:</label>
-    <input type="text" name="quantity" id="quantity" required/><br />
-    
-    <label for="date" class="form">Order Date:</label>
-    <input type="date" name="date" id="date" required/><br />
-    
-    <label for="client" class="form">Client:</label>
-    <input type="text" name="client" id="client" required/><br />
-    
-    <label for="notes" class="form">Notes:</label>
-    <input type="text" name="notes" id="notes" /><br /><br />
-    
-    <button class="add_button">Place Order</button>
+    <label for="current_emails" class="form">Current Alert Email Recipients:</label>
+    <select name="current_emails" id="current_emails" />
+    {% for key, email in emails %}
+        <option value="{{ key }}">{{ email }}</option>
+    {% endfor %}
+    </select><br/><br/>
+    <button class="submit">Remove Email</button>
+</form>
+
+<form action="{% url 'tracker:add_email' %}" enctype="multipart/form-data" method="post">
+    {% csrf_token %}
+    <label for="new_email" class="form">Add Alert Email Recipient:</label>
+    <input type="text" name="new_email" id="new_email" />
+    <button class="submit" name="add_email" id="add_email" />Add Email<br />
 </form>
 
 <div class="spacer">
