@@ -54,25 +54,29 @@
 
 <body>
 
+{% if response %}
+<h2 class="error">{{ response }}</h2>
+{% endif %}
+
 <h1>Settings</h1>
 
-<form action="{% url 'tracker:delete_email' email %}" enctype="multipart/form-data" method="post">
+<form action="{% url 'tracker:delete_email' %}" enctype="multipart/form-data" method="post">
     {% csrf_token %}
-    <label for="current_emails" class="form">Current Alert Email Recipients:</label>
-    <select name="current_emails" id="current_emails" />
-    {% for key, email in emails %}
-        <option value="{{ key }}">{{ email }}</option>
+    <label for="old_email" class="form">Current Alert Email Recipients:</label>
+    <select name="old_email" id="old_email" />
+    {% for email in emails %}
+        <option value="{{ email.email }}">{{ email.email }}</option>
     {% endfor %}
-    </select><br/><br/>
-    <button class="submit">Remove Email</button>
-</form>
+    </select><br/>
+    <button class="submit_button">Remove Email</button>
+</form><br/><br/>
 
 <form action="{% url 'tracker:add_email' %}" enctype="multipart/form-data" method="post">
     {% csrf_token %}
     <label for="new_email" class="form">Add Alert Email Recipient:</label>
-    <input type="text" name="new_email" id="new_email" />
-    <button class="submit" name="add_email" id="add_email" />Add Email<br />
-</form>
+    <input type="text" name="new_email" id="new_email" required/><br/>
+    <button class="submit_button" name="add_email" id="add_email" />Add Email</button><br />
+</form><br/>
 
 <div class="spacer">
 </div>

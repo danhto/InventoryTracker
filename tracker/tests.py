@@ -51,7 +51,7 @@ def createInventory(product, lot, in_qty):
                     dessicate=dessicate,)
 
 # Check pending stock to ensure there is room to place order
-def checkPendingStock(inventory, order_quantity):
+def checkPendingStock(inventory):
     quantity = int(inventory.quantity)
     for p_stock in Pending_Stock.objects.all():
         # No need to check for conflicts if order has been approved
@@ -60,10 +60,7 @@ def checkPendingStock(inventory, order_quantity):
             if p_stock.inventory.lot_number == inventory.lot_number:
                 quantity = quantity - p_stock.quantity
     # if inventory has sufficient quantities then order can proceed
-    if quantity >= order_quantity:
-        return True
-    else:
-        return False
+    return quantity
 
 def createOrder(product, quantity):
     global order_date
@@ -83,10 +80,14 @@ def createOrder(product, quantity):
             inventory_list.append(inventory)
     inventory_list = sorted(inventory_list, key=lambda inventory: inventory.add_date)
 
+    pending_flag = False
     # scan all inventory for stock prioritizing full skits then date
     for inventory in inventory_list:
-        skits_in_inventory = inventory.quantity/MAX_QUANTITY_ON_SKIT
-        leftover_in_inventory = inventory.quantity%MAX_QUANTITY_ON_SKIT
+        actual_inv_qty = checkPendingStock(inventory)
+        if actual_inv_qty < int(inventory.quantity):
+            pending_flag = True
+        skits_in_inventory = actual_inv_qty/MAX_QUANTITY_ON_SKIT
+        leftover_in_inventory = actual_inv_qty%MAX_QUANTITY_ON_SKIT
         
         print ("Quantity ordered: "+str(quantity))
         print ("Skits in inventory: "+str(skits_in_inventory))
@@ -102,23 +103,19 @@ def createOrder(product, quantity):
             # inventory has enough to fullfill leftover requirements of order
             if leftover_in_order <= leftover_in_inventory:
                 quantity_taken = skits_in_order*MAX_QUANTITY_ON_SKIT + leftover_in_order
-                # checks to make sure stock is not held for another order
-                if checkPendingStock(inventory, quantity_taken):
-                    #print ("ln 100 TRUE")
-                    leftover_in_order = 0
-                    pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
-                    pending_stock.save()
-                    stock = stock + str(pending_stock.id) + ", "
-                    skits_in_order = 0
+                leftover_in_order = 0
+                pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
+                pending_stock.save()
+                stock = stock + str(pending_stock.id) + ", "
+                skits_in_order = 0
             # inventory does not have enough to fullfill leftover requirements of order
             else:
                 quantity_taken = skits_in_order*MAX_QUANTITY_ON_SKIT + leftover_in_inventory
-                if checkPendingStock(inventory, quantity_taken):
-                    leftover_in_order = leftover_in_order - leftover_in_inventory
-                    pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
-                    pending_stock.save()
-                    stock = stock + str(pending_stock.id) + ", "
-                    skits_in_order = 0
+                leftover_in_order = leftover_in_order - leftover_in_inventory
+                pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
+                pending_stock.save()
+                stock = stock + str(pending_stock.id) + ", "
+                skits_in_order = 0
         # inventory does not have enough to fullfill skit requirements of order
         else:
             # checks if skit amount of inventory is 0
@@ -128,28 +125,29 @@ def createOrder(product, quantity):
                 skits_taken = 0
             if leftover_in_order <= leftover_in_inventory:
                 quantity_taken = skits_taken*MAX_QUANTITY_ON_SKIT + leftover_in_order
-                if checkPendingStock(inventory, quantity_taken):
-                    leftover_in_order = 0
+                leftover_in_order = 0
+                pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
+                pending_stock.save()
+                stock = stock + str(pending_stock.id) + ", "
+                skits_in_order = skits_in_order - skits_taken
+            else:
+                if leftover_in_inventory != 0:
+                    quantity_taken = skits_taken*MAX_QUANTITY_ON_SKIT + leftover_in_inventory
+                    leftover_in_order = leftover_in_order - leftover_in_inventory
                     pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
                     pending_stock.save()
                     stock = stock + str(pending_stock.id) + ", "
                     skits_in_order = skits_in_order - skits_taken
-            else:
-                if leftover_in_inventory != 0:
-                    quantity_taken = skits_taken*MAX_QUANTITY_ON_SKIT + leftover_in_inventory
-                    if checkPendingStock(inventory, quantity_taken):
-                        leftover_in_order = leftover_in_order - leftover_in_inventory
-                        pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
-                        pending_stock.save()
-                        stock = stock + str(pending_stock.id) + ", "
-                        skits_in_order = skits_in_order - skits_taken
-                
+
         # if order quantity has been satisfied stop scanning inventory for stock
         if skits_in_order == 0 and leftover_in_order == 0:
             break
 
     if skits_in_order != 0 or leftover_in_order != 0:
-        return None
+        response = "Insufficient stock. "
+        if pending_flag:
+            response = response + "Stock held. "
+        return response
     else:
         return Order(order_number=1, product=product, date=order_date, quantity=quantity, stock=stock, client=client)
 
@@ -238,9 +236,38 @@ class ObjectCreationTests(TestCase):
         inventoryB.save()
         # Create order with productA
         orderA = createOrder(productA, 150)
-        if orderA != None:
+        if orderA != "Insufficent stock. " and orderA != "Insufficient stock. Stock held. ":
             orderA.save()
         
+        self.assertEqual(orderA, "Insuffient stock. ")
+        self.assertEqual(Product.objects.count(), 2)
+        self.assertEqual(Inventory.objects.count(), 2)
+        self.assertEqual(Order.objects.count(), 0)
+        print("End test_order_insufficient_quantity")
+
+    def test_order_insufficient_quantity_stock_held(self):
+    
+        print("Start test_order_insufficient_quantity")
+        # Create product Test and Test2
+        productA = createProductA()
+        productB = createProductB()
+        productA.save()
+        productB.save()
+        # Create inventory using products Test and Test2
+        inventoryA = createInventory(productA, 'AA', 100)
+        inventoryB = createInventory(productB, 'BB', 100)
+        inventoryA.save()
+        inventoryB.save()
+        # Create order with productA
+        orderA = createOrder(productA, 50)
+        if orderA != "Insufficient stock. " and orderA != "Insufficient stock. Stock held. ":
+            orderA.save()
+        # Create order 2 with productA
+        orderB = createOrder(productA, 100)
+        if orderB != "Insufficient stock. " and orderB != "Insufficient stock. Stock held. ":
+            orderB.save()
+
+        self.assertEqual(orderB, "Insuffient stock. Stock held. ")
         self.assertEqual(Product.objects.count(), 2)
         self.assertEqual(Inventory.objects.count(), 2)
         self.assertEqual(Order.objects.count(), 0)

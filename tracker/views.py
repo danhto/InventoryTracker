@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse, Http404, HttpResponseRedirect
-from tracker.models import Product, Inventory, Order, Pending_Stock
+from tracker.models import Product, Inventory, Order, Pending_Stock, Email
 from django.core.urlresolvers import reverse, resolve
 from django.utils import timezone
 from django.contrib import messages, auth
@@ -232,10 +232,17 @@ def new_order(request):
                 inventory_list.append(inventory)
     inventory_list = sorted(inventory_list, key=lambda inventory: inventory.add_date)
     
+    stock_held = False
     # scan all inventory for stock prioritizing full skits then date
     for inventory in inventory_list:
-        skits_in_inventory = inventory.quantity/MAX_QUANTITY_ON_SKIT
-        leftover_in_inventory = inventory.quantity%MAX_QUANTITY_ON_SKIT
+        actual_inv_qty = checkPendingStock(inventory)
+        
+        # flag that tracks whether stock is being held for another order
+        if actual_inv_qty < inventory.quantity:
+            stock_held = True
+        
+        skits_in_inventory = actual_inv_qty/MAX_QUANTITY_ON_SKIT
+        leftover_in_inventory = actual_inv_qty%MAX_QUANTITY_ON_SKIT
         
         # check if inventory has enough stock to fill as many skits as required by order
         # inventory has enough to fullfill skit requirements of order
@@ -245,26 +252,19 @@ def new_order(request):
             # inventory has enough to fullfill leftover requirements of order
             if leftover_in_order <= leftover_in_inventory:
                 quantity_taken = skits_in_order*MAX_QUANTITY_ON_SKIT + leftover_in_order
-                # checks to make sure stock is not held for another order
-                if checkPendingStock(inventory, quantity_taken):
-                    leftover_in_order = 0
-                    pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
-                    pending_stock.save()
-                    stock = stock + str(pending_stock.id) + ", "
-                    skits_in_order = 0
-                else:
-                    response_message = "Pending stock already held for another order. "
+                leftover_in_order = 0
+                pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
+                pending_stock.save()
+                stock = stock + str(pending_stock.id) + ", "
+                skits_in_order = 0
             # inventory does not have enough to fullfill leftover requirements of order
             else:
                 quantity_taken = skits_in_order*MAX_QUANTITY_ON_SKIT + leftover_in_inventory
-                if checkPendingStock(inventory, quantity_taken):
-                    leftover_in_order = leftover_in_order - leftover_in_inventory
-                    pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
-                    pending_stock.save()
-                    stock = stock + str(pending_stock.id) + ", "
-                    skits_in_order = 0
-                else:
-                    response_message = "Pending stock already held for another order. "
+                leftover_in_order = leftover_in_order - leftover_in_inventory
+                pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
+                pending_stock.save()
+                stock = stock + str(pending_stock.id) + ", "
+                skits_in_order = 0
         # inventory does not have enough to fullfill skit requirements of order
         else:
             # checks if skit amount of inventory is 0
@@ -274,38 +274,34 @@ def new_order(request):
                 skits_taken = 0
             if leftover_in_order <= leftover_in_inventory:
                 quantity_taken = skits_taken*MAX_QUANTITY_ON_SKIT + leftover_in_order
-                if checkPendingStock(inventory, quantity_taken):
-                    leftover_in_order = 0
+                leftover_in_order = 0
+                pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
+                pending_stock.save()
+                stock = stock + str(pending_stock.id) + ", "
+                skits_in_order = skits_in_order - skits_taken
+            else:
+                if leftover_in_inventory != 0:
+                    quantity_taken = skits_taken*MAX_QUANTITY_ON_SKIT + leftover_in_inventory
+                    leftover_in_order = leftover_in_order - leftover_in_inventory
                     pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
                     pending_stock.save()
                     stock = stock + str(pending_stock.id) + ", "
                     skits_in_order = skits_in_order - skits_taken
-                else:
-                    response_message = "Pending stock already held for another order. "
-            else:
-                if leftover_in_inventory != 0:
-                    quantity_taken = skits_taken*MAX_QUANTITY_ON_SKIT + leftover_in_inventory
-                    if checkPendingStock(inventory, quantity_taken):
-                        leftover_in_order = leftover_in_order - leftover_in_inventory
-                        pending_stock = Pending_Stock(order_number=order_number, inventory=inventory, quantity=quantity_taken)
-                        pending_stock.save()
-                        stock = stock + str(pending_stock.id) + ", "
-                        skits_in_order = skits_in_order - skits_taken
-                    else:
-                        response_message = "Pending stock already held for another order. "
     
         # if order quantity has been satisfied stop scanning inventory for stock
         if skits_in_order == 0 and leftover_in_order == 0:
             break
 
     if skits_in_order != 0 or leftover_in_order != 0:
-        response_message = response_message + 'Insufficient inventory to place order!'
+        response_message = response_message + 'Insufficient inventory to place order! '
+        if stock_held:
+            response_message = response_message + 'Some of the stock is being held for another order.'
         return render(request, 'tracker/place_order.html', {'product_list': Product.objects.all(), 'response': response_message})
     else:
         order = Order(order_number=order_number, product=product, date=date, quantity=quantity, stock=stock, client=client, notes=notes)
         order.save()
         response_message = 'Order has been placed'
-        email_alerts('order', order.get_stock)  # send email alert to administrator about new order
+        email_alerts('order', order)  # send email alert to administrator about new order
         return render(request, 'tracker/place_order.html', {'product_list': Product.objects.all(), 'response': response_message})
 
 @login_required
@@ -360,12 +356,19 @@ def app_settings(request):
 
 def add_email(request):
     new_email = request.POST['new_email']
-    email = Email(email=new_email)
-    email.save()
-    return HttpResponseRedirect(reverse('tracker:app_settings', args=({'emails': Email.objects.all()})))
+    results = Email.objects.filter(email=new_email)
+    if len(results) > 0:
+        return render(request, 'tracker/app_settings.html', {'emails': Email.objects.all(), 'response': "The email `" + new_email + "` is already registered in the system."})
+    else:
+        email = Email(email=new_email)
+        email.save()
+    return HttpResponseRedirect(reverse('tracker:app_settings', args=()), {'emails': Email.objects.all()})
 
 def delete_email(request):
-    
+    email = request.POST['old_email']
+    old_email = Email.objects.get(email=email)
+    old_email.delete()
+    return HttpResponseRedirect(reverse('tracker:app_settings', args=()))
 
 # custom view for permission denied exception
 def custom_permission_denied_view(request):
@@ -379,7 +382,7 @@ def getCategories():
     return categories
 
 # Check pending stock to ensure there is room to place order
-def checkPendingStock(inventory, order_quantity):
+def checkPendingStock(inventory):
     quantity = int(inventory.quantity)
     for order in Pending_Stock.objects.all():
         # No need to check for conflicts if order has been approved
@@ -387,25 +390,26 @@ def checkPendingStock(inventory, order_quantity):
             if order.inventory.lot_number == inventory.lot_number:
                 quantity = quantity - order.quantity
     # if inventory has sufficient quantities then order can proceed
-    if quantity >= order_quantity:
-        return True
-    else:
-        return False
+    return quantity
 
 # Send mail
 def email_alerts(alert, content):
     subject = ""
     body = ""
+    emails = []
     if alert == 'stock':
         subject = "Low stock"
         body = "Stock for " + content + " is running low."
     else:
         subject = "A new order has been placed"
-        body = "Order " + content + " requires your approval."
-
-    send_mail(
-              subject,
-              body,
-              'alert@inventorytracker.com',
-              ['it@yfs.ca'],
-              fail_silently=False,)
+        body = "Order " + str(content.order_number) + " for " + content.client + " requires your approval."
+    for email in Email.objects.all():
+        emails.append(email.email)
+    if len(emails) > 0:
+        send_mail(
+                  subject,
+                  body,
+                  'alert@inventorytracker.com',
+                  emails,
+                  fail_silently=False,)
+        print ("Email sent to " + str(emails[0]))
