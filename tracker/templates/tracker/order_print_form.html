@@ -1,0 +1,82 @@
+{% load staticfiles %}
+<link rel="stylesheet" href="{% static 'tracker/css/style.css' %}">
+    
+<head>
+    <ul id="menu-bar">
+        <li>
+            <a href="{% url 'tracker:index' %}">
+                Inventory
+            </a>
+            <ul class="second-level-menu">
+                <li>
+                    <a href="{% url 'tracker:add_inventory' %}">
+                        New Inventory
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <a href="{% url 'tracker:view_orders' %}">
+                Orders
+            </a>
+            <ul class="second-level-menu">
+                <li>
+                    <a href="{% url 'tracker:place_order' %}">
+                        New Order
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <a href="{% url 'tracker:view_products' %}">
+                Products
+            </a>
+            <ul class="second-level-menu">
+                <li>
+                    <a href="{% url 'tracker:add_product' %}">
+                        New Product
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <a href="{% url 'tracker:log_out' %}">
+                Logout
+            </a>
+        </li>
+        <li id="settings">
+            <a href="{% url 'tracker:app_settings' %}">
+                <div id="img_holder"></div>
+            </a>
+        </li>
+    </ul>
+</head>
+
+<body>
+    
+    <h1>Order Form</h1>
+    
+    <div id="section-to-print">
+        <p id="order_number">Order number: {{ order.order_number }}</p><br/>
+        <p class="order_form_label">Date </p><p class="order_data" id="date">{{ order.date }}</p><br/>
+        <p class="order_form_label">Order for client </p><p class="order_data" id="client">{{ order.client }}</p><br/>
+        <p class="order_form_label">Total quantity </p><p class="order_data" id="order_quantity">{{ order.quantity }}</p><br/>
+        <p class="order_form_label">Stock </p><br/>
+        <p class="stocks order_data">
+        {% for stock in order.get_stock %}
+            {{ stock }}<br/><br/>
+        {% endfor %}
+        </p></br>
+        <p class="order_form_label">Notes </p><p id="notes" class="order_data" >{{ order.notes }}</p><br/>
+    </div>
+    
+    <div class="spacer">
+    </div>
+    
+    <footer>
+        <p>Written by: Dan To, 2016</p>
+        <a href="www.github.com/danhto">
+            <img src="{% static "tracker/images/github.png" %}" />
+        </a>
+    </footer>
+</body>

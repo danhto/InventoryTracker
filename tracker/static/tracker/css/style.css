@@ -190,6 +190,15 @@ tr:hover td.product_details {
     background: #D3D3D3;
 }
 
+tr:hover td.order_details {
+    background: #D3D3D3;
+}
+
+td.order_details a {
+    width: 100%;
+    height: 100%;
+}
+
 td {
     font: 400 1em/2 'Verdana', sans-serif;
     padding-left: 0.5em;
@@ -588,6 +597,45 @@ ul#menu-bar li#settings {
     width: 3%;
     height: 100%;
     padding: 0 10px 0 0;
+}
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    #section-to-print, #section-to-print * {
+        visibility: visible;
+    }
+    #section-to-print {
+        position: relative;
+        left: 0;
+        top: 0;
+    }
+}
+
+div#section-to-print {
+    text-align: center;
+}
+
+div#section-to-print p#order_number {
+    font: 900 2em/1 'Lucida Grande', serif;
+    padding: 0 0 10px 0;
+    border-bottom: 4px solid black;
+}
+
+div#section-to-print p.order_form_label {
+    font: 700 1.8em/1 'Lucida Grande', serif;
+    display: inline-block;
+    padding: 10px 5px 10px 0;
+    border-bottom: 2px solid red;
+}
+
+div#section-to-print p.order_data {
+    font: 400 1.5em/1 'Lucida Grande', sans-serif;
+    padding: 10px 0 10px 10px;
+    border-bottom: 2px solid red;
+    border-left: 2px solid red;
+    display: inline-block;
 }
 /* --------------------- */
 

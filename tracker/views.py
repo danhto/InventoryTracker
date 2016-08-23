@@ -181,12 +181,9 @@ def update_inventory(request, counter):
     quantity = str(request.POST['quantity'+counter])
     sm_lot_number = str(request.POST['sm_lot_number'+counter])
     product = Product.objects.get(sm_lot_number=sm_lot_number)
-    inv = ''
-    inventory_list = Inventory.objects.filter(product=product)
-    for inventory in Inventory.objects.all():
-        if inventory.lot_number == lot_number:
-            inv = inventory
-    if inv.quantity != int(quantity):
+    inv = Inventory.objects.get(lot_number=lot_number)              # retrieve specified inventory using lot number
+    inventory_list = Inventory.objects.filter(product=product)      # create list of all inventories with specified product
+    if inv.quantity != int(quantity):                               # check if inventory quantity has been changed
         inv.quantity = quantity
         inv.save()
         response_message = "Quantity successfully updated for " + product.product_name + " in inventory " + lot_number + "."
@@ -358,6 +355,12 @@ def delete_order(request, order_number):
     order.delete()
     response = 'Order deleted'
     return render(request, 'tracker/orders_list.html', {'orders': Order.objects.all(), 'response': response})
+
+@login_required
+@permission_required('tracker.add_order', raise_exception=True)
+def order_print_form(request, order_number):
+    order_number = int(order_number)
+    return render(request, 'tracker/order_print_form.html', {'order': Order.objects.get(order_number=order_number)})
 
 # Renders app_settings.html view
 def app_settings(request):

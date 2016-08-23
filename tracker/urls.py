@@ -42,6 +42,8 @@ urlpatterns = [
                url(r'^delete_order/(?P<order_number>\d+)$', views.delete_order, name='delete_order'),
                # ex: /view_orders renders orders_list.html and displays all current orders in system
                url(r'^approve_order/(?P<order_number>\d+)$', views.approve_order, name='approve_order'),
+               # ex: /order_print_form renders order_print_form.html and displays all current order in print format
+               url(r'^order_print_form/(?P<order_number>\d+)$', views.order_print_form, name='order_print_form'),
                
                # ex: /app_settings/ renders app_settings.html and displays editable settings for application
                url(r'^app_settings/$', views.app_settings, name='app_settings'),
