@@ -231,14 +231,14 @@ def new_order(request):
             if not inventory.no_stock():
                 inventory_list.append(inventory)
     inventory_list = sorted(inventory_list, key=lambda inventory: inventory.add_date)
-    
+
     stock_held = False
     # scan all inventory for stock prioritizing full skits then date
     for inventory in inventory_list:
         actual_inv_qty = checkPendingStock(inventory)
         
         # flag that tracks whether stock is being held for another order
-        if actual_inv_qty < inventory.quantity:
+        if actual_inv_qty < int(inventory.quantity):
             stock_held = True
         
         skits_in_inventory = actual_inv_qty/MAX_QUANTITY_ON_SKIT
@@ -296,6 +296,10 @@ def new_order(request):
         response_message = response_message + 'Insufficient inventory to place order! '
         if stock_held:
             response_message = response_message + 'Some of the stock is being held for another order.'
+            # clears any pending stock that may have been created
+            for stock in Pending_Stock.objects.all():
+                if stock.order_number == order_number:
+                    stock.delete()
         return render(request, 'tracker/place_order.html', {'product_list': Product.objects.all(), 'response': response_message})
     else:
         order = Order(order_number=order_number, product=product, date=date, quantity=quantity, stock=stock, client=client, notes=notes)
@@ -384,11 +388,11 @@ def getCategories():
 # Check pending stock to ensure there is room to place order
 def checkPendingStock(inventory):
     quantity = int(inventory.quantity)
-    for order in Pending_Stock.objects.all():
+    for stock in Pending_Stock.objects.all():
         # No need to check for conflicts if order has been approved
-        if order.status != 'Approved':
-            if order.inventory.lot_number == inventory.lot_number:
-                quantity = quantity - order.quantity
+        if stock.status != 'Approved':
+            if stock.inventory.lot_number == inventory.lot_number:
+                quantity = quantity - stock.quantity
     # if inventory has sufficient quantities then order can proceed
     return quantity
 
