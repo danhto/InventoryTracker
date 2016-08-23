@@ -32,6 +32,11 @@ def index(request):
             if not inventory.critical_stock() and inventory.alerts == 1:
                 inventory.alert_sent(True)
                 inventory.save()
+        # if inventory has no stock and is not used in any current orders then delete it
+        else:
+            orders = Pending_Stock.objects.filter(inventory=inventory)
+            if len(orders) == 0:
+                inventory.delete()
     inventory_list = sorted(inventory_list, key=lambda inventory: getattr(inventory, order_by))
     context = {'inventory_list': inventory_list}
     return render(request, 'tracker/index.html', context)
