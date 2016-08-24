@@ -610,32 +610,48 @@ ul#menu-bar li#settings {
         position: relative;
         left: 0;
         top: 0;
+        margin: 0;
     }
 }
 
-div#section-to-print {
+div#section-to-print div#order_form_title {
     text-align: center;
 }
 
 div#section-to-print p#order_number {
-    font: 900 2em/1 'Lucida Grande', serif;
+    font: 900 3em/1.2 'Lucida Grande', serif;
     padding: 0 0 10px 0;
+    border-bottom: 4px solid black;
+    height: 75px;
+}
+
+div#order_form_title {
+    height: 75px;
     border-bottom: 4px solid black;
 }
 
 div#section-to-print p.order_form_label {
     font: 700 1.8em/1 'Lucida Grande', serif;
     display: inline-block;
-    padding: 10px 5px 10px 0;
-    border-bottom: 2px solid red;
+    padding: 5px 15px 5px 0;
+    border-right: 4px dotted red;
+    vertical-align: middle;
+
 }
 
 div#section-to-print p.order_data {
-    font: 400 1.5em/1 'Lucida Grande', sans-serif;
-    padding: 10px 0 10px 10px;
-    border-bottom: 2px solid red;
-    border-left: 2px solid red;
+    font: 400 1.2em/1.2 'Lucida Grande', sans-serif;
+    padding: 15px 0 15px 40px;
     display: inline-block;
+    vertical-align: middle;
+}
+
+div#section-to-print p#order_form_stock_label {
+    vertical-align: top;
+}
+
+div#div_print_button {
+    text-align: right;
 }
 /* --------------------- */
 

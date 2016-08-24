@@ -53,21 +53,27 @@
 </head>
 
 <body>
-    
-    <h1>Order Form</h1>
-    
     <div id="section-to-print">
-        <p id="order_number">Order number: {{ order.order_number }}</p><br/>
-        <p class="order_form_label">Date </p><p class="order_data" id="date">{{ order.date }}</p><br/>
-        <p class="order_form_label">Order for client </p><p class="order_data" id="client">{{ order.client }}</p><br/>
-        <p class="order_form_label">Total quantity </p><p class="order_data" id="order_quantity">{{ order.quantity }}</p><br/>
-        <p class="order_form_label">Stock </p><br/>
-        <p class="stocks order_data">
-        {% for stock in order.get_stock %}
-            {{ stock }}<br/><br/>
-        {% endfor %}
-        </p></br>
-        <p class="order_form_label">Notes </p><p id="notes" class="order_data" >{{ order.notes }}</p><br/>
+        <div id="order_form_title">
+            <p id="order_number">Order #{{ order.order_number }}</p><br/>
+        </div>
+        
+        <div id="order_form_body">
+            <p class="order_form_label">Date </p><p class="order_data" id="date">{{ order.date }}</p><br/>
+            <p class="order_form_label">Order for client </p><p class="order_data" id="client">{{ order.client }}</p><br/>
+            <p class="order_form_label">Total quantity </p><p class="order_data" id="order_quantity">{{ order.quantity }}</p><br/>
+            <p id="order_form_stock_label" class="order_form_label">Stock </p>
+            <p class="stocks order_data">
+            {% for stock in order.get_stock %}
+                {{ stock }}<br/><br/>
+            {% endfor %}
+            </p></br>
+            <p class="order_form_label">Notes </p><p id="notes" class="order_data" >{{ order.notes }}</p><br/>
+        </div>
+    </div>
+    
+    <div id="div_print_button">
+        <a href="javascript:window.print()" class="submit_button">Print Order Form</a>
     </div>
     
     <div class="spacer">
