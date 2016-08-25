@@ -138,8 +138,9 @@ STATICFILES_DIRS = (
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.sendgrid.net'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'inventorytracker'
-EMAIL_HOST_PASSWORD = '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'
+EMAIL_HOST_USER = 'xxx'
+EMAIL_HOST_PASSWORD = 'xxx'
+
 
 LOGIN_URL = '/tracker/login/'
 LOGIN_REDIRECT_URL = '/tracker/'
