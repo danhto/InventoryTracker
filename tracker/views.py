@@ -125,7 +125,7 @@ def delete_product(request, sm_lot_number):
     if (len(inventory_list) > 0):
         inventory_list.delete()
     product.delete()
-    return HttpResponseRedirect(reverse('tracker:add_product', args=()))
+    return HttpResponseRedirect(reverse('tracker:view_products',  args=()), {'product_list': Product.objects.all(), 'categories': getCategories()})
 
 # Add new inventory for an existing product
 @login_required

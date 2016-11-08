@@ -23,6 +23,7 @@ class Product(models.Model):
     category = models.CharField(max_length=3,choices=CATEGORIES,default=DEXTROSE)
     popular = models.CharField(max_length=3,default='No')
     photo = models.FileField(upload_to=get_image_path, blank=True, null=True)
+    #photo = models.ImageField(upload_to=get_image_path, blank=True, null=True)
     def get_pounds(self):
         return "{0:.2f}".format(Product.KG_TO_LBS_CONVERSION * float(self.weight))
     def __str__(self):
