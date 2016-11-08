@@ -19,7 +19,7 @@ sys.path.append('/Users/clubs/Desktop/IT/Python/InventoryTracker/InventoryTracke
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "InventoryTracker.settings")
 
+application = get_wsgi_application()
 """
 application = WSGIHandler()
 """
-application = get_wsgi_application()

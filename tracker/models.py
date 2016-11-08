@@ -33,18 +33,12 @@ class Product(models.Model):
 
 class Inventory(models.Model):
     INVENTORY_THRESHOLD = 50
-    NO_LABEL = '0'
-    HAS_LABEL = '1'
-    SOME_LABELS = '2'
-    LABEL_INFO = ((NO_LABEL, 'No Label'),
-                  (HAS_LABEL, 'Has labels'),
-                  (SOME_LABELS, 'Partially labelled'),)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     add_date = models.DateTimeField('date added')
     lot_number = models.CharField(max_length=200)
     quantity = models.IntegerField(default=0)
     location = models.CharField(max_length=100)
-    label = models.CharField(max_length=1,choices=LABEL_INFO, default=NO_LABEL)
+    label = models.CharField(max_length=30, default='None')
     standard = models.CharField(max_length=3, default='Yes')
     dessicate = models.CharField(max_length=3, default='No')
     notes = models.CharField(max_length=200)
@@ -130,3 +124,6 @@ class Pending_Stock(models.Model):
 
 class Email(models.Model):
     email = models.CharField(max_length=100, default='')
+
+class Labels(models.Model):
+    label = models.CharField(max_length=30, default='None')

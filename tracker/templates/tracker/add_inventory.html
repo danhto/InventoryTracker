@@ -78,9 +78,10 @@
     
     <label for="label" class="form">Label:</label>
     <select name="label" id="label">
-        <option value="0">No Label</option>
-        <option value="1">Labels</option>
-        <option value="2">Partially Labelled</option>
+        <option value="none">None</option>
+        {% for label in labels %}
+        <option value="{{ label.label }}">{{ label.label }}</option>
+        {% endfor %}
     </select><br /><br />
     
     <label for="standard" class="form">Standard:</label>

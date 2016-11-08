@@ -78,6 +78,25 @@
     <button class="submit_button" name="add_email" id="add_email" />Add Email</button><br />
 </form><br/>
 
+<form action="{% url 'tracker:delete_label' %}" enctype="multipart/form-data" method="post">
+    {% csrf_token %}
+    <label for="del_label" class="form">Current Inventory Labels:</label>
+    <select name="del_label" id="del_label" />
+        <option value="none">None</option>
+        {% for label in labels %}
+        <option value="{{ label.label }}">{{ label.label }}</option>
+        {% endfor %}
+    </select><br/>
+    <button class="submit_button">Remove Label</button>
+</form><br/><br/>
+
+<form action="{% url 'tracker:add_label' %}" enctype="multipart/form-data" method="post">
+    {% csrf_token %}
+    <label for="new_label" class="form">Add New Inventory Label:</label>
+    <input type="text" name="new_label" id="new_label" required/><br/>
+    <button class="submit_button" name="add_label" id="add_label" />Add Label</button><br />
+</form><br/>
+
 <div class="spacer">
 </div>
 

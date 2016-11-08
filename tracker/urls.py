@@ -26,8 +26,10 @@ urlpatterns = [
                url(r'^new_inventory/$', views.new_inventory, name='new_inventory'),
                # ex: /tracker/update_inventory accessible only through form submission from product_inventory.html
                url(r'^update_inventory/(?P<counter>\d+)$', views.update_inventory, name='update_inventory'),
-               # ex: /login login form for tracker application
+               # ex: /tracker/update_inventory_label accessible only through form submission from product_inventory.html
+               url(r'^update_inventory_label/(?P<counter>\d+)$', views.update_inventory_label, name='update_inventory_label'),
                
+               # ex: /login login form for tracker application
                url(r'^login/$', auth_views.login, {'template_name': 'tracker/login.html'}),
                # ex: /logout clears current user session
                url(r'^log_out/$', views.log_out, name='log_out'),
@@ -51,4 +53,8 @@ urlpatterns = [
                url(r'^delete_email/$', views.delete_email, name='delete_email'),
                # ex: /add_email adds indicated email to list of app alert recipients
                url(r'^add_email/$', views.add_email, name='add_email'),
+               # ex: /add_email adds indicated label to list of inventory labels
+               url(r'^add_label/$', views.add_label, name='add_label'),
+               # ex: /delete_label deletes indicated label from list of inventory labels
+               url(r'^delete_label/$', views.delete_label, name='delete_label'),
                ]

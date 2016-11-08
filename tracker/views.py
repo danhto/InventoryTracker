@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse, Http404, HttpResponseRedirect
-from tracker.models import Product, Inventory, Order, Pending_Stock, Email
+from tracker.models import Product, Inventory, Order, Pending_Stock, Email, Labels
 from django.core.urlresolvers import reverse, resolve
 from django.utils import timezone
 from django.contrib import messages, auth
@@ -56,7 +56,7 @@ def product_inventory(request, product_name):
                 p_name = itm.product.product_name
     except Inventory.DoesNotExist:
         raise Http404("No inventory in system")
-    return render(request, 'tracker/product_inventory.html', {'inventory_list': inventory_list, 'product_name': p_name})
+    return render(request, 'tracker/product_inventory.html', {'inventory_list': inventory_list, 'labels': Labels.objects.all(), 'product_name': p_name})
 
 # View product calls the product_list.html view
 @login_required
@@ -131,7 +131,7 @@ def delete_product(request, sm_lot_number):
 @login_required
 @permission_required('tracker.add_inventory', raise_exception=True)
 def add_inventory(request):
-    return render(request, 'tracker/add_inventory.html', {'product_list': Product.objects.all()})
+    return render(request, 'tracker/add_inventory.html', {'product_list': Product.objects.all(), 'labels': Labels.objects.all()})
 
 # Creates and stores inventory based on values entered into the new_inventory form
 @login_required
@@ -148,7 +148,7 @@ def new_inventory(request):
     product = ''
     # Guards against blank fields
     if sm_lot_number == '' or lot_number == '' or quantity == '' or location == '':
-        return render(request, 'tracker/add_inventory.html', {'product_list': Product.objects.all(), 'error_message': "Missing information, only notes can be empty.",})
+        return render(request, 'tracker/add_inventory.html', {'product_list': Product.objects.all(), 'labels': Labels.objects.all(), 'error_message': "Missing information, only notes can be empty.",})
     # Searches for product in database and creates inventory with indicated values if found
     for prod in Product.objects.all():
         if str(prod.sm_lot_number) == sm_lot_number:
@@ -156,9 +156,9 @@ def new_inventory(request):
     # Guards against duplicate lot numbers when entering new inventory
     for inventory in Inventory.objects.all():
         if str(inventory.lot_number) == lot_number:
-            return render(request, 'tracker/add_inventory.html', {'product_list': Product.objects.all(), 'error_message': "Indicated lot number already exists. Please check existing inventory for duplicates.",})
+            return render(request, 'tracker/add_inventory.html', {'product_list': Product.objects.all(), 'labels': Labels.objects.all(), 'error_message': "Indicated lot number already exists. Please check existing inventory for duplicates.",})
     if product == '':
-        return render(request, 'tracker/add_inventory.html', {'product_list': Product.objects.all(), 'error_message': "Product error: Product cannot be found.",})
+        return render(request, 'tracker/add_inventory.html', {'product_list': Product.objects.all(), 'labels': Labels.objects.all(), 'error_message': "Product error: Product cannot be found.",})
     else:
         inventory = Inventory(product=product,
                               add_date=timezone.now(),
@@ -189,7 +189,22 @@ def update_inventory(request, counter):
         response_message = "Quantity successfully updated for " + product.product_name + " in inventory " + lot_number + "."
     else:
         response_message = "Quantity set is the same as before, no change has been made. "
-    return render(request, 'tracker/product_inventory.html', {'inventory_list': inventory_list, 'product_name': product.product_name, 'response': response_message})
+    return render(request, 'tracker/product_inventory.html', {'inventory_list': inventory_list, 'product_name': product.product_name, 'labels': Labels.objects.all(), 'response': response_message})
+
+# Updates the quantity of an existing inventory
+@login_required
+@permission_required('tracker.change_inventory', raise_exception=True)
+def update_inventory_label(request, counter):
+    lot_number = str(request.POST['lot_number'+counter])
+    sm_lot_number = str(request.POST['sm_lot_number'+counter])
+    label = str(request.POST['label'+counter])
+    product = Product.objects.get(sm_lot_number=sm_lot_number)
+    inv = Inventory.objects.get(lot_number=lot_number)              # retrieve specified inventory using lot number
+    inventory_list = Inventory.objects.filter(product=product)      # create list of all inventories with specified product for re-render of page
+    inv.label = label
+    inv.save()
+    response_message = "Label has been successfully changed to " + label
+    return render(request, 'tracker/product_inventory.html', {'inventory_list': inventory_list, 'product_name': product.product_name, 'labels': Labels.objects.all(), 'response': response_message})
 
 # Opens product ordering webpage
 @login_required
@@ -364,22 +379,42 @@ def order_print_form(request, order_number):
 
 # Renders app_settings.html view
 def app_settings(request):
-    return render(request, 'tracker/app_settings.html', {'emails': Email.objects.all()})
+    return render(request, 'tracker/app_settings.html', {'emails': Email.objects.all(), 'labels': Labels.objects.all()})
 
+# Adds new alert email to system
 def add_email(request):
     new_email = request.POST['new_email']
     results = Email.objects.filter(email=new_email)
     if len(results) > 0:
-        return render(request, 'tracker/app_settings.html', {'emails': Email.objects.all(), 'response': "The email `" + new_email + "` is already registered in the system."})
+        return render(request, 'tracker/app_settings.html', {'emails': Email.objects.all(), 'labels': Labels.objects.all(), 'response': "The email `" + new_email + "` is already registered in the system."})
     else:
         email = Email(email=new_email)
         email.save()
-    return HttpResponseRedirect(reverse('tracker:app_settings', args=()), {'emails': Email.objects.all()})
+    return HttpResponseRedirect(reverse('tracker:app_settings', args=()), {'emails': Email.objects.all(), 'labels': Labels.objects.all()})
 
+# Delete existing alert email from system
 def delete_email(request):
     email = request.POST['old_email']
     old_email = Email.objects.get(email=email)
     old_email.delete()
+    return HttpResponseRedirect(reverse('tracker:app_settings', args=()))
+
+# Add new inventory label to system
+def add_label(request):
+    new_label = request.POST['new_label']
+    results = Labels.objects.filter(label=new_label)
+    if len(results) > 0:
+        return render(request, 'tracker/app_settings.html', {'emails': Email.objects.all(), 'labels': Labels.objects.all(), 'response': "The label `" + new_email + "` is already registered in the system."})
+    else:
+        label = Labels(label=new_label)
+        label.save()
+    return HttpResponseRedirect(reverse('tracker:app_settings', args=()), {'emails': Email.objects.all(), 'labels': Labels.objects.all()})
+
+# Delete existing inventory label from system, has no effect on labels already used on existing inventory
+def delete_label(request):
+    label = request.POST['del_label']
+    del_label = Labels.objects.get(label=label)
+    del_label.delete()
     return HttpResponseRedirect(reverse('tracker:app_settings', args=()))
 
 # custom view for permission denied exception

@@ -82,7 +82,24 @@
             </form>
         </td>
         <td>{{ inventory.location }}</td>
-        <td>{{ inventory.label }}</td>
+        <td>
+            <form action="{% url 'tracker:update_inventory_label' forloop.counter %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="lot_number{{ forloop.counter }}" id="lot_number{{ forloop.counter }}" value="{{ inventory.lot_number }}" />
+                <input type="hidden" name="sm_lot_number{{ forloop.counter }}" id="sm_lot_number{{ forloop.counter }}" value="{{ inventory.product.sm_lot_number }}" />
+                <select name="label{{ forloop.counter }}" id="label{{ forloop.counter }}">
+                    <option value="none">None</option>
+                    {% for label in labels %}
+                        {% if label.label == inventory.label %}
+                            <option value="{{ label.label }}" selected>{{ label.label }}</option>
+                        {% else %}
+                            <option value="{{ label.label }}">{{ label.label }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                <button class="submit_button">Change</button>
+            </form>
+        </td>
         <td>{{ inventory.standard }}</td>
         <td>{{ inventory.dessicate }}</td>
         <td>{{ inventory.notes }}</td>
